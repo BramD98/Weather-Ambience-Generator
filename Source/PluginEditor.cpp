@@ -31,6 +31,20 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
     statusLabel.setFont(juce::Font(14.0f));
     statusLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(statusLabel);
+
+    // Setup wind gain slider
+    windGainSlider.setSliderStyle(juce::Slider::LinearVertical);
+    windGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    addAndMakeVisible(windGainSlider);
+
+    // Setup label
+    windGainLabel.setText("Wind", juce::dontSendNotification);
+    windGainLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(windGainLabel);
+
+    // Attach slider to APVTS parameter
+    windGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+        audioProcessor.apvts, "windGain", windGainSlider);
 }
 
 WeatherAmbienceGeneratorAudioProcessorEditor::~WeatherAmbienceGeneratorAudioProcessorEditor()
@@ -59,6 +73,9 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::resized()
     area.removeFromTop(20);
 
     statusLabel.setBounds(area.removeFromTop(100));
+
+    windGainLabel.setBounds(20, 20, 80, 20);
+    windGainSlider.setBounds(20, 45, 80, 200);
 }
 void WeatherAmbienceGeneratorAudioProcessorEditor::onFetchButtonClicked()
 {

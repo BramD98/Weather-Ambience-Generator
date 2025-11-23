@@ -37,6 +37,19 @@ bool AudioSamplePlayer::loadFile(const juce::File& file)
 	return false;
 }
 
+bool AudioSamplePlayer::loadFile(const juce::String& filePath)
+{
+	juce::File file(filePath);
+
+	if (!file.exists())
+	{
+		DBG("File not found: " + filePath);
+		return false;
+	}
+
+	return loadFile(file);
+}
+
 void AudioSamplePlayer::passSampleToBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
 	if (!isLoaded || !isPlaying)
@@ -73,7 +86,7 @@ void AudioSamplePlayer::stop()
 
 void AudioSamplePlayer::setGain(float newGain)
 {
-	gain = juce::jlimit(0.0f, 1.0f, newGain);
+	gain = juce::jmax(0.0f, newGain);
 }
 
 bool AudioSamplePlayer::getIsPlaying()const

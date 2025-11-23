@@ -9,7 +9,7 @@
 */
 #include <JuceHeader.h>
 #pragma once
-const juce::ParameterID outputGainParamID{ "outputGain", 1 };
+const juce::ParameterID windGainParamID{ "windGain", 1 };
 
 class Parameters {
 public:
@@ -21,10 +21,10 @@ public:
     void smoothen() noexcept;
     void update()noexcept;
 
-    float outputGain = 0.0f;
+    float windGain = 0.0f;
 
 
 private:
-    juce::AudioParameterFloat* outputGainParam;
-    juce::LinearSmoothedValue<float> outputGainSmoother;
+    juce::AudioParameterFloat* windGainParam;
+    juce::LinearSmoothedValue<float> windGainSmoother;
 };

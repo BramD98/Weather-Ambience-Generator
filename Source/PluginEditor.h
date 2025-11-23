@@ -33,6 +33,11 @@ private:
     juce::TextButton fetchButton;
     juce::Label statusLabel;
 
+    juce::Slider windGainSlider;
+    juce::Label windGainLabel;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> windGainAttachment;
+
     void onFetchButtonClicked();
     void onWeatherUpdate(const WeatherManager::WeatherData& data);
 

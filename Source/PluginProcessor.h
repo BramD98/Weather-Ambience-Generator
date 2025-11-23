@@ -62,7 +62,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     juce::AudioProcessorValueTreeState apvts;
-    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    //juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     Parameters params;
     WeatherManager* getWeatherManager() { return weatherManager.get(); }
 

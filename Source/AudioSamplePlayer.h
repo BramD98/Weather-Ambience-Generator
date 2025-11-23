@@ -18,6 +18,7 @@ public:
     ~AudioSamplePlayer() = default;
     void prepareSamplePlayer(double sampleRate, int samplesPerBlock);
     bool loadFile(const juce::File& file);
+    bool loadFile(const juce::String& filePath);
     void passSampleToBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
     void start();
     void stop();

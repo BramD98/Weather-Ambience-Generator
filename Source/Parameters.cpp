@@ -22,7 +22,7 @@ static void castParameter(juce::AudioProcessorValueTreeState& apvts,
 
 Parameters::Parameters(juce::AudioProcessorValueTreeState& apvts)
 {
-	castParameter(apvts, outputGainParamID, outputGainParam);
+	castParameter(apvts, windGainParamID, windGainParam);
 }
 juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterLayout()
 {
@@ -31,7 +31,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
 
 
 	layout.add(std::make_unique<juce::AudioParameterFloat>(
-		outputGainParamID.getParamID(), "OutputGain",
+		windGainParamID.getParamID(), "windGain",
 		juce::NormalisableRange<float>{ -24.f, 24.f, 0.1f, 1.0f},
 		0.0f));
 
@@ -42,20 +42,20 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
 void Parameters::prepareToPlay(double sampleRate) noexcept
 {
 	double duration = 0.02;
-	outputGainSmoother.reset(sampleRate, duration);
+	windGainSmoother.reset(sampleRate, duration);
 }
 
 void Parameters::reset() noexcept
 {
-	outputGain = 0.0f;
-	outputGainSmoother.setCurrentAndTargetValue(
-		juce::Decibels::decibelsToGain(outputGainParam->get()));
+	windGain = 0.0f;
+	windGainSmoother.setCurrentAndTargetValue(
+		juce::Decibels::decibelsToGain(windGainParam->get()));
 }
 void Parameters::update() noexcept
 {
-	outputGainSmoother.setTargetValue(juce::Decibels::decibelsToGain(outputGainParam->get()));
+	windGainSmoother.setTargetValue(juce::Decibels::decibelsToGain(windGainParam->get()));
 }
 void Parameters::smoothen() noexcept
 {
-	outputGain = outputGainSmoother.getNextValue();
+	windGain = windGainSmoother.getNextValue();
 }

@@ -25,10 +25,10 @@ WeatherAmbienceGeneratorAudioProcessor::WeatherAmbienceGeneratorAudioProcessor()
 {
 	
 	weatherManager = std::make_unique<WeatherManager>(m_apiKey);
-	juce::File calmWindFile{ "C:/Users/bramd/Desktop/WeatherAmbGenerator/SFX/Wind_Calm.wav" };
-	if (calmWindFile.exists())
+	//Loading Samples From Files
+	if (calmWindPlayer.loadFile("C:/Users/bramd/Desktop/WeatherAmbGenerator/SFX/Wind_Calm.wav"))
 	{
-		calmWindPlayer.loadFile(calmWindFile);
+	
 		calmWindPlayer.start();
 		DBG("File Loaded ");
 	}
@@ -155,20 +155,25 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 		buffer.clear(i, 0, buffer.getNumSamples());
 
-	//windPlayer.process(buffer);
-	//windPlayer.play();
 	params.update();
+	
 	for (int channel = 0; channel < totalNumInputChannels; ++channel)
 	{
 		auto* channelData = buffer.getWritePointer(channel);
 
-		for (int sample{ 0 }; sample < buffer.getNumSamples(); ++sample)
+		for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
 		{
 			params.smoothen();
-
-			channelData[sample] *= params.outputGain;
+			calmWindPlayer.setGain(params.windGain);
+			//calmWindPlayer.passSampleToBuffer(buffer, sample, 1);  // Process 1 sample at a time
 		}
 	}
+	static int counter = 0;
+	if (++counter % 100 == 0)  // Print every 100 blocks to avoid spam
+	{
+		DBG("windGain: " << params.windGain);
+	}
+	//calmWindPlayer.setGain(params.windGain);
 	calmWindPlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
 	protectYourEars(buffer);
 }
