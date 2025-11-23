@@ -1,0 +1,71 @@
+# ===============================
+# JUCE Project .gitignore
+# Tailored for:
+# WeatherAmbienceGenerator
+# ===============================
+
+# JUCE auto-generated code
+JuceLibraryCode/
+
+# Build output folders
+Builds/
+build/
+cmake-build*/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+
+# Compiled binaries & intermediates
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.exe
+*.out
+*.app
+*.pdb
+
+# Projucer project files to ignore
+*.jucer.lock
+*.jucer.properties
+
+# IDE-specific junk
+# Xcode
+*.xcworkspace
+*.xcuserdata
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+*.xcuserstate
+
+# Visual Studio
+*.VC.db
+*.VC.opendb
+*.vs/
+*.vcxproj.user
+*.suo
+*.ncb
+*.sdf
+*.opensdf
+
+# CLion / JetBrains
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# CMake exports (if any)
+compile_commands.json
+export_compile_commands.json
+
+# Temporary files
+*.log
+*.tmp
+*.cache
+*.pch
+*.ipch
