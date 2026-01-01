@@ -17,6 +17,12 @@
       <FILE id="lmKvnf" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
     <GROUP id="{86DEE6B8-7A6F-3BCA-30F9-BBD799547A9C}" name="Helpers">
+      <FILE id="UVjcZB" name="CrossfadeComponent.cpp" compile="1" resource="0"
+            file="Source/CrossfadeComponent.cpp"/>
+      <FILE id="N2BMOd" name="CrossfadeComponent.h" compile="0" resource="0"
+            file="Source/CrossfadeComponent.h"/>
+      <FILE id="V4Yr95" name="FileLoader.cpp" compile="1" resource="0" file="Source/FileLoader.cpp"/>
+      <FILE id="CsSPol" name="FileLoader.h" compile="0" resource="0" file="Source/FileLoader.h"/>
       <FILE id="K4uzLG" name="AudioSamplePlayer.cpp" compile="1" resource="0"
             file="Source/AudioSamplePlayer.cpp"/>
       <FILE id="KdLOfU" name="AudioSamplePlayer.h" compile="0" resource="0"

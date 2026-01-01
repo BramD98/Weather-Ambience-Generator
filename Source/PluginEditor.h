@@ -6,10 +6,21 @@
   ==============================================================================
 */
 
+
 #pragma once
+
+#ifdef _MSC_VER
+#pragma warning(push, 0)
+#endif
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "FileLoader.h"
+#include "CrossfadeComponent.h"
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 //==============================================================================
 /**
@@ -28,7 +39,7 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     WeatherAmbienceGeneratorAudioProcessor& audioProcessor;
-
+    
     juce::TextEditor cityInput;
     juce::TextButton fetchButton;
     juce::Label statusLabel;
@@ -37,6 +48,9 @@ private:
     juce::Label windGainLabel;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> windGainAttachment;
+    FileLoader fileLoader;
+    CrossfadeComponent windCrossfade;
+    CrossfadeComponent fireCrossfade;
 
     void onFetchButtonClicked();
     void onWeatherUpdate(const WeatherManager::WeatherData& data);

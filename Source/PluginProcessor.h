@@ -7,7 +7,7 @@
 */
 
 #pragma once
-#pragma warning (push,0)
+
 
 #include <JuceHeader.h>
 #include <memory>
@@ -15,6 +15,7 @@
 #include "WeatherFetcher.h"
 #include "WeatherManager.h"
 #include "AudioSamplePlayer.h"
+#include "FileLoader.h"
 
 
 
@@ -66,10 +67,18 @@ public:
     Parameters params;
     WeatherManager* getWeatherManager() { return weatherManager.get(); }
 
+    AudioSamplePlayer calmWindPlayer;
+    AudioSamplePlayer midWindPlayer;
+    AudioSamplePlayer strongWindPlayer;
+    AudioSamplePlayer calmFirePlayer;
+    AudioSamplePlayer strongFirePlayer;
+
+    FileLoader fileLoader;
+
 private:
     //==============================================================================
     std::unique_ptr <WeatherManager> weatherManager;
-    AudioSamplePlayer calmWindPlayer;
+    
   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WeatherAmbienceGeneratorAudioProcessor)
 };

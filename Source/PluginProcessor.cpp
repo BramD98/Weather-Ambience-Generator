@@ -23,19 +23,16 @@ WeatherAmbienceGeneratorAudioProcessor::WeatherAmbienceGeneratorAudioProcessor()
 	), apvts(*this, nullptr, "Parameters", Parameters::createParameterLayout()), params(apvts)
 #endif
 {
+
 	
 	weatherManager = std::make_unique<WeatherManager>(m_apiKey);
-	//Loading Samples From Files
-	if (calmWindPlayer.loadFile("C:/Users/bramd/Desktop/WeatherAmbGenerator/SFX/Wind_Calm.wav"))
-	{
+	fileLoader.registerPlayer("Calm Wind", &calmWindPlayer);
+	fileLoader.registerPlayer("mid Wind", &midWindPlayer);
+
+	fileLoader.registerPlayer("Strong Wind", &strongWindPlayer);
+	fileLoader.registerPlayer("Calm Fire", &calmFirePlayer);
+	fileLoader.registerPlayer("Strong Fire", &strongFirePlayer);
 	
-		calmWindPlayer.start();
-		DBG("File Loaded ");
-	}
-	else
-	{
-		DBG("File not found ");
-	}
 }
 
 WeatherAmbienceGeneratorAudioProcessor::~WeatherAmbienceGeneratorAudioProcessor()
@@ -109,8 +106,22 @@ void WeatherAmbienceGeneratorAudioProcessor::prepareToPlay(double sampleRate, in
 {
 	params.prepareToPlay(sampleRate);
 	params.reset();
-	
+
+	fileLoader.setSampleRate(sampleRate);
+
 	calmWindPlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
+	juce::File file("C:/Users/bramd/Desktop/WeatherAmbGenerator/SFX/Wind_Calm.wav");
+	fileLoader.loadFileForPlayer("Calm Wind", file);
+	midWindPlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
+
+	strongWindPlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
+	calmFirePlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
+	strongFirePlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
+	calmWindPlayer.start();
+	midWindPlayer.start();
+	strongWindPlayer.start();
+	calmFirePlayer.start();
+	strongFirePlayer.start();
 }
 
 void WeatherAmbienceGeneratorAudioProcessor::releaseResources()
@@ -155,6 +166,8 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 		buffer.clear(i, 0, buffer.getNumSamples());
 
+	
+
 	params.update();
 	
 	for (int channel = 0; channel < totalNumInputChannels; ++channel)
@@ -164,17 +177,26 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 		for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
 		{
 			params.smoothen();
-			calmWindPlayer.setGain(params.windGain);
-			//calmWindPlayer.passSampleToBuffer(buffer, sample, 1);  // Process 1 sample at a time
+			
+			//calmWindPlayer.setGain(params.windGain);
+			//strongWindPlayer.setGain(params.windGain);
+			
 		}
 	}
 	static int counter = 0;
 	if (++counter % 100 == 0)  // Print every 100 blocks to avoid spam
 	{
-		DBG("windGain: " << params.windGain);
+		//DBG("windGain: " << params.windGain);
 	}
-	//calmWindPlayer.setGain(params.windGain);
+	
 	calmWindPlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
+	midWindPlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
+	strongWindPlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
+	calmFirePlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
+	strongFirePlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
+
+
+
 	protectYourEars(buffer);
 }
 
