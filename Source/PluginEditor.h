@@ -48,9 +48,18 @@ private:
     juce::Label windGainLabel;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> windGainAttachment;
-    FileLoader fileLoader;
+    //FileLoader fileLoader;
     CrossfadeComponent windCrossfade;
     CrossfadeComponent fireCrossfade;
+    juce::TextButton thunderTriggerButton;
+    juce::ToggleButton randomThunderToggle;
+    juce::Label minIntervalLabel, maxIntervalLabel;
+    juce::TextEditor minIntervalInput, maxIntervalInput;
+
+    // Thunder methods
+    void triggerThunder();
+    void onRandomToggleChanged();
+    void onIntervalChanged();
 
     void onFetchButtonClicked();
     void onWeatherUpdate(const WeatherManager::WeatherData& data);

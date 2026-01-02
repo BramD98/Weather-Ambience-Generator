@@ -1,4 +1,4 @@
-/*
+﻿/*
   ==============================================================================
 
 	This file contains the basic framework code for a JUCE plugin editor.
@@ -12,7 +12,7 @@
 
 //==============================================================================
 WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProcessorEditor(WeatherAmbienceGeneratorAudioProcessor& p)
-	: AudioProcessorEditor(&p), audioProcessor(p), windCrossfade("Calm Wind","Mid Wind" ,"Strong Wind"), fireCrossfade ("Calm Fire","Mid Fire", "Strong Fire")
+	: AudioProcessorEditor(&p), audioProcessor(p), windCrossfade("Calm Wind", "Mid Wind", "Strong Wind"), fireCrossfade("Calm Fire", "Mid Fire", "Strong Fire")
 {
 	// Make sure that before the constructor has finished, you've set the
 	// editor's size to whatever you need it to be.
@@ -49,15 +49,54 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 		audioProcessor.apvts, windGainParamID.getParamID(), windGainSlider);
 
 
-	fileLoader.registerPlayer("Calm Wind", &audioProcessor.calmWindPlayer);
+	/*fileLoader.registerPlayer("Calm Wind", &audioProcessor.calmWindPlayer);
 	fileLoader.registerPlayer("Mid Wind", &audioProcessor.midWindPlayer);
 	fileLoader.registerPlayer("Strong Wind", &audioProcessor.strongWindPlayer);
 	fileLoader.registerPlayer("Calm Fire", &audioProcessor.calmFirePlayer);
-	fileLoader.registerPlayer("Strong Fire", &audioProcessor.strongFirePlayer);
-	addAndMakeVisible(fileLoader);
+	fileLoader.registerPlayer("Strong Fire", &audioProcessor.strongFirePlayer);*/
+
+	// Register thunder player with file loader
+	//audioProcessor.fileLoader.registerPlayer("Thunder", &audioProcessor.thunderPlayer);
+
+	addAndMakeVisible(audioProcessor.fileLoader);
+
+	// Setup Thunder trigger button
+	thunderTriggerButton.setButtonText("⚡ THUNDER ⚡");
+	thunderTriggerButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkblue);
+	thunderTriggerButton.setColour(juce::TextButton::textColourOffId, juce::Colours::yellow);
+	thunderTriggerButton.onClick = [this]() { triggerThunder(); };
+	addAndMakeVisible(thunderTriggerButton);
+
+	// Setup random trigger toggle
+	randomThunderToggle.setButtonText("Random Thunder");
+	randomThunderToggle.onClick = [this]() { onRandomToggleChanged(); };
+	addAndMakeVisible(randomThunderToggle);
+
+	// Setup min interval input
+	minIntervalLabel.setText("Min (sec):", juce::dontSendNotification);
+	minIntervalLabel.setJustificationType(juce::Justification::centredRight);
+	addAndMakeVisible(minIntervalLabel);
+
+	minIntervalInput.setText("5.0");
+	minIntervalInput.setFont(juce::Font(14.0f));
+	minIntervalInput.onTextChange = [this]() { onIntervalChanged(); };
+	addAndMakeVisible(minIntervalInput);
+
+	// Setup max interval input
+	maxIntervalLabel.setText("Max (sec):", juce::dontSendNotification);
+	maxIntervalLabel.setJustificationType(juce::Justification::centredRight);
+	addAndMakeVisible(maxIntervalLabel);
+
+	maxIntervalInput.setText("15.0");
+	maxIntervalInput.setFont(juce::Font(14.0f));
+	maxIntervalInput.onTextChange = [this]() { onIntervalChanged(); };
+	addAndMakeVisible(maxIntervalInput);
+
+	// Set thunder player to one-shot mode
+	//audioProcessor.thunderPlayer.setLoopMode(false);
 
 	//Crossfaders
-	windCrossfade.setPlayers(&audioProcessor.calmWindPlayer,&audioProcessor.midWindPlayer,
+	windCrossfade.setPlayers(&audioProcessor.calmWindPlayer, &audioProcessor.midWindPlayer,
 		&audioProcessor.strongWindPlayer);
 	windCrossfade.attachMasterGain(audioProcessor.apvts, windGainParamID);
 	addAndMakeVisible(windCrossfade);
@@ -96,7 +135,7 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::resized()
 
 	// Right side of top section - file loader
 	topSection.removeFromLeft(10);  // spacing
-	fileLoader.setBounds(topSection.removeFromTop(120));
+	audioProcessor.fileLoader.setBounds(topSection.removeFromTop(120));
 
 	area.removeFromTop(10);
 
@@ -108,9 +147,64 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::resized()
 	fireCrossfade.setBounds(area.removeFromTop(100));
 	area.removeFromTop(20);
 
+	// Thunder section
+	auto thunderSection = area.removeFromTop(120);
+	thunderSection.removeFromLeft(20);
+	thunderSection.removeFromRight(20);
+
+	// Manual trigger button
+	thunderTriggerButton.setBounds(thunderSection.removeFromTop(50));
+	thunderSection.removeFromTop(10);
+
+	// Random thunder controls
+	auto randomSection = thunderSection.removeFromTop(60);
+	randomThunderToggle.setBounds(randomSection.removeFromTop(25));
+	randomSection.removeFromTop(5);
+
+	// Min/Max interval inputs
+	auto intervalRow = randomSection.removeFromTop(25);
+	auto leftHalf = intervalRow.removeFromLeft(intervalRow.getWidth() / 2);
+
+	minIntervalLabel.setBounds(leftHalf.removeFromLeft(70));
+	leftHalf.removeFromLeft(5);
+	minIntervalInput.setBounds(leftHalf.removeFromLeft(60));
+
+	intervalRow.removeFromLeft(10);
+	maxIntervalLabel.setBounds(intervalRow.removeFromLeft(70));
+	intervalRow.removeFromLeft(5);
+	maxIntervalInput.setBounds(intervalRow.removeFromLeft(60));
+
+	area.removeFromTop(20);
+
 	// Status label
 	statusLabel.setBounds(area.removeFromTop(100));
 }
+
+void WeatherAmbienceGeneratorAudioProcessorEditor::triggerThunder()
+{
+	audioProcessor.thunderPlayer.trigger();
+}
+
+void WeatherAmbienceGeneratorAudioProcessorEditor::onRandomToggleChanged()
+{
+	bool isEnabled = randomThunderToggle.getToggleState();
+	audioProcessor.thunderPlayer.setRandomTriggerEnabled(isEnabled);
+
+	// Update interval if enabling
+	if (isEnabled)
+	{
+		onIntervalChanged();
+	}
+}
+
+void WeatherAmbienceGeneratorAudioProcessorEditor::onIntervalChanged()
+{
+	float minInterval = minIntervalInput.getText().getFloatValue();
+	float maxInterval = maxIntervalInput.getText().getFloatValue();
+
+	audioProcessor.thunderPlayer.setRandomTriggerInterval(minInterval, maxInterval);
+}
+
 void WeatherAmbienceGeneratorAudioProcessorEditor::onFetchButtonClicked()
 {
 	juce::String city = cityInput.getText();
@@ -137,7 +231,7 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::onWeatherUpdate(const Weather
 	if (data.isValid)
 	{
 		juce::String weatherInfo = "Weather: " + data.condition + "\n";
-		weatherInfo += "Temp: " + juce::String(data.temperature, 1) + "�C\n";
+		weatherInfo += "Temp: " + juce::String(data.temperature, 1) + "°C\n";
 		weatherInfo += "Wind: " + juce::String(data.windSpeed, 1) + " m/s\n";
 		weatherInfo += "Humidity: " + juce::String(data.humidity) + "%\n";
 		weatherInfo += "Rain: " + juce::String(data.precipitation, 1) + " mm";

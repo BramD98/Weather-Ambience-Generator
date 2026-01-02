@@ -67,17 +67,24 @@ public:
     Parameters params;
     WeatherManager* getWeatherManager() { return weatherManager.get(); }
 
+    // Loopers
     AudioSamplePlayer calmWindPlayer;
     AudioSamplePlayer midWindPlayer;
     AudioSamplePlayer strongWindPlayer;
     AudioSamplePlayer calmFirePlayer;
     AudioSamplePlayer strongFirePlayer;
 
+    //One Shots
+    AudioSamplePlayer thunderPlayer;
+    
     FileLoader fileLoader;
 
 private:
     //==============================================================================
     std::unique_ptr <WeatherManager> weatherManager;
+    void FileLoaderRegisterPlayers();
+    void PrepareSamplePlayers(double sampleRate, int samplesPerBlock);
+    void ProcessSamplePlayers(juce::AudioBuffer<float>& buffer);
     
   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WeatherAmbienceGeneratorAudioProcessor)

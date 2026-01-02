@@ -1,9 +1,9 @@
 /*
   ==============================================================================
 
-	SamplePlayer.cpp
-	Created: 2 Nov 2025 10:57:22am
-	Author:  bramd
+    SamplePlayer.cpp
+    Created: 2 Nov 2025 10:57:22am
+    Author:  bramd
 
   ==============================================================================
 */
@@ -12,12 +12,12 @@
 
 AudioSamplePlayer::AudioSamplePlayer()
 {
-	formatManager.registerBasicFormats();
+    formatManager.registerBasicFormats();
 }
 
 void AudioSamplePlayer::prepareSamplePlayer(double sampleRate, int samplesPerBlock)
 {
-	currentSampleRate = sampleRate;
+    currentSampleRate = sampleRate;
 }
 
 bool AudioSamplePlayer::loadFile(const juce::File& file)
@@ -100,19 +100,31 @@ bool AudioSamplePlayer::loadFile(const juce::File& file)
 
 bool AudioSamplePlayer::loadFile(const juce::String& filePath)
 {
-	juce::File file(filePath);
+    juce::File file(filePath);
 
-	if (!file.exists())
-	{
-		DBG("File not found: " + filePath);
-		return false;
-	}
+    if (!file.exists())
+    {
+        DBG("File not found: " + filePath);
+        return false;
+    }
 
-	return loadFile(file);
+    return loadFile(file);
 }
 
 void AudioSamplePlayer::passSampleToBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
+    // Handle random triggering
+    if (randomTriggerEnabled.load() && isLoaded)
+    {
+        samplesSinceLastTrigger += numSamples;
+
+        if (samplesSinceLastTrigger >= samplesToNextTrigger)
+        {
+            trigger();
+            scheduleNextRandomTrigger();
+        }
+    }
+
     if (!isLoaded || !isPlaying || buffer.getNumSamples() == 0)
     {
         return;
@@ -131,7 +143,17 @@ void AudioSamplePlayer::passSampleToBuffer(juce::AudioBuffer<float>& outputBuffe
     {
         if (position >= bufferLength)
         {
-            position = 0;
+            if (loopMode)
+            {
+                position = 0;  // Loop back to start
+            }
+            else
+            {
+                // One-shot mode: stop playing
+                isPlaying = false;
+                position = 0;
+                break;
+            }
         }
 
         for (int channel = 0; channel < numChannels; ++channel)
@@ -143,6 +165,7 @@ void AudioSamplePlayer::passSampleToBuffer(juce::AudioBuffer<float>& outputBuffe
         ++position;
     }
 }
+
 bool AudioSamplePlayer::loadBuffer(const juce::AudioBuffer<float>& newBuffer, double newSourceSampleRate)
 {
     if (newBuffer.getNumSamples() == 0 || newBuffer.getNumChannels() == 0)
@@ -167,32 +190,99 @@ bool AudioSamplePlayer::loadBuffer(const juce::AudioBuffer<float>& newBuffer, do
 
     return true;
 }
+
+void AudioSamplePlayer::setLoopMode(bool shouldLoop)
+{
+    loopMode = shouldLoop;
+}
+
+bool AudioSamplePlayer::isLooping() const
+{
+    return loopMode;
+}
+
+void AudioSamplePlayer::trigger()
+{
+    if (isLoaded)
+    {
+        position = 0;
+        isPlaying = true;
+    }
+}
+
+void AudioSamplePlayer::setRandomTriggerEnabled(bool enabled)
+{
+    randomTriggerEnabled = enabled;
+
+    if (enabled)
+    {
+        scheduleNextRandomTrigger();
+    }
+}
+
+void AudioSamplePlayer::setRandomTriggerInterval(float minSeconds, float maxSeconds)
+{
+    // Validate inputs
+    if (minSeconds < 0.1f) minSeconds = 0.1f;
+    if (maxSeconds < minSeconds) maxSeconds = minSeconds;
+
+    minRandomInterval = minSeconds;
+    maxRandomInterval = maxSeconds;
+}
+
+bool AudioSamplePlayer::isRandomTriggerEnabled() const
+{
+    return randomTriggerEnabled.load();
+}
+
+void AudioSamplePlayer::getRandomTriggerInterval(float& minSeconds, float& maxSeconds) const
+{
+    minSeconds = minRandomInterval.load();
+    maxSeconds = maxRandomInterval.load();
+}
+
+void AudioSamplePlayer::scheduleNextRandomTrigger()
+{
+    float minSec = minRandomInterval.load();
+    float maxSec = maxRandomInterval.load();
+
+    // Generate random interval in seconds
+    float intervalSeconds = minSec + random.nextFloat() * (maxSec - minSec);
+
+    // Convert to samples
+    samplesToNextTrigger = intervalSeconds * currentSampleRate;
+    samplesSinceLastTrigger = 0.0;
+}
+
 void AudioSamplePlayer::start()
 {
-	isPlaying = true;
+    isPlaying = true;
 }
 
 void AudioSamplePlayer::stop()
 {
-	isPlaying = false;
-	position = 0;
+    isPlaying = false;
+    position = 0;
 }
 
 void AudioSamplePlayer::setGain(float newGain)
 {
-	gain = juce::jmax(0.0f, newGain);
+    gain = juce::jmax(0.0f, newGain);
 }
 
-bool AudioSamplePlayer::getIsPlaying()const
+bool AudioSamplePlayer::getIsPlaying() const
 {
-	return isPlaying;
+    return isPlaying;
 }
 
 void AudioSamplePlayer::clear()
 {
-	buffer.clear();
-	position = 0;
-	isLoaded = false;
-	isPlaying = false;
+    buffer.clear();
+    position = 0;
+    isLoaded = false;
+    isPlaying = false;
     sourceSampleRate = 0.0;
+    randomTriggerEnabled = false;
+    samplesSinceLastTrigger = 0.0;
+    samplesToNextTrigger = 0.0;
 }
