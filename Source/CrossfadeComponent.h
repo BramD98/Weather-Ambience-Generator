@@ -14,7 +14,7 @@ public:
     void setPlayers(AudioSamplePlayer* playerA_ptr,
         AudioSamplePlayer* playerB_ptr,
         AudioSamplePlayer* playerC_ptr);
-
+    void attachMasterGain(juce::AudioProcessorValueTreeState& apvts, const juce::ParameterID& parameterID);
     float getCrossfadeValue() const;
     void setCrossfadeValue(float value);
     void setMasterGain(float gain);
@@ -23,10 +23,12 @@ private:
     void updatePlayerGains();
 
     juce::Slider crossfadeSlider;
+    juce::Slider masterGainSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterGainAttachment;
     juce::Label labelA, labelB, labelC;
     juce::Label centerLabel;
     juce::String nameA, nameB, nameC;
-    float masterGain{ 1.0f };
+    std::atomic<float>masterGain{ 1.0f };
 
     AudioSamplePlayer* playerA = nullptr;
     AudioSamplePlayer* playerB = nullptr;

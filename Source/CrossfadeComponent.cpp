@@ -1,4 +1,4 @@
-
+﻿
 #include "CrossfadeComponent.h"
 
 
@@ -9,7 +9,7 @@ CrossfadeComponent::CrossfadeComponent(const juce::String& label1,
 {
     // Setup crossfade slider - now 0.0 to 2.0 for three positions
     crossfadeSlider.setRange(0.0, 2.0, 0.01);
-    crossfadeSlider.setValue(1.0);  // Start in the middle (player B)
+    crossfadeSlider.setValue(0.0);  // Start At left
     crossfadeSlider.setSliderStyle(juce::Slider::LinearHorizontal);
     crossfadeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     crossfadeSlider.addListener(this);
@@ -105,6 +105,16 @@ void CrossfadeComponent::setPlayers(AudioSamplePlayer* playerA_ptr,
     updatePlayerGains();
 }
 
+void CrossfadeComponent::attachMasterGain(juce::AudioProcessorValueTreeState& apvts, const juce::ParameterID& parameterID)
+{
+    masterGainSlider.setRange(0.0, 1.0, 0.01);
+    masterGainSlider.addListener(this);
+    // Don't add it as visible: addAndMakeVisible(masterGainSlider);
+
+    masterGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+        apvts, parameterID.getParamID(), masterGainSlider);
+}
+
 float CrossfadeComponent::getCrossfadeValue() const
 {
     return static_cast<float>(crossfadeSlider.getValue());
@@ -125,13 +135,22 @@ void CrossfadeComponent::sliderValueChanged(juce::Slider* slider)
     if (slider == &crossfadeSlider)
     {
         updatePlayerGains();
-        repaint();  // Redraw the visual indicator
+        repaint();
+    }
+    else if (slider == &masterGainSlider)
+    {
+        float gainDB = static_cast<float>(masterGainSlider.getValue());
+        masterGain.store(juce::Decibels::decibelsToGain(gainDB));  // Atomic write
+        DBG("MasterGain dB: " + juce::String(gainDB, 2) +
+            " | Linear gain: " + juce::String(masterGain, 4));
+        updatePlayerGains();
     }
 }
 
 void CrossfadeComponent::updatePlayerGains()
 {
     float crossfadeValue = static_cast<float>(crossfadeSlider.getValue());
+    float currentMasterGain = masterGain.load();  // Atomic read
 
     if (playerA != nullptr && playerB != nullptr && playerC != nullptr)
     {
@@ -159,13 +178,13 @@ void CrossfadeComponent::updatePlayerGains()
             gainC = secondHalf;          // 0.0 -> 1.0
         }
 
-        playerA->setGain(gainA * masterGain);
-        playerB->setGain(gainB * masterGain);
-        playerC->setGain(gainC * masterGain);
+        playerA->setGain(gainA * currentMasterGain);
+        playerB->setGain(gainB * currentMasterGain);
+        playerC->setGain(gainC * currentMasterGain);
 
-        DBG("Crossfade: " + juce::String(crossfadeValue, 2) +
+        /*DBG("Crossfade: " + juce::String(crossfadeValue, 2) +
             " | Gain A: " + juce::String(gainA, 2) +
             " | Gain B: " + juce::String(gainB, 2) +
-            " | Gain C: " + juce::String(gainC, 2));
+            " | Gain C: " + juce::String(gainC, 2));*/
     }
 }

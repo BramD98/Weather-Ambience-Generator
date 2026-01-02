@@ -46,7 +46,7 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 
 	// Attach slider to APVTS parameter
 	windGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-		audioProcessor.apvts, "windGain", windGainSlider);
+		audioProcessor.apvts, windGainParamID.getParamID(), windGainSlider);
 
 
 	fileLoader.registerPlayer("Calm Wind", &audioProcessor.calmWindPlayer);
@@ -59,7 +59,7 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 	//Crossfaders
 	windCrossfade.setPlayers(&audioProcessor.calmWindPlayer,&audioProcessor.midWindPlayer,
 		&audioProcessor.strongWindPlayer);
-	
+	windCrossfade.attachMasterGain(audioProcessor.apvts, windGainParamID);
 	addAndMakeVisible(windCrossfade);
 
 
@@ -86,8 +86,18 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::resized()
 {
 	auto area = getLocalBounds().reduced(20);
 
-	// File loader at top
-	fileLoader.setBounds(area.removeFromTop(120));
+	// Top section - wind gain slider and label on the left
+	auto topSection = area.removeFromTop(250);
+	auto sliderSection = topSection.removeFromLeft(100);
+
+	windGainLabel.setBounds(sliderSection.removeFromTop(20));
+	sliderSection.removeFromTop(5);
+	windGainSlider.setBounds(sliderSection.removeFromTop(200));
+
+	// Right side of top section - file loader
+	topSection.removeFromLeft(10);  // spacing
+	fileLoader.setBounds(topSection.removeFromTop(120));
+
 	area.removeFromTop(10);
 
 	// Wind crossfade
@@ -100,10 +110,6 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::resized()
 
 	// Status label
 	statusLabel.setBounds(area.removeFromTop(100));
-
-	// Wind gain slider and label (left side)
-	windGainLabel.setBounds(20, 20, 80, 20);
-	windGainSlider.setBounds(20, 45, 80, 200);
 }
 void WeatherAmbienceGeneratorAudioProcessorEditor::onFetchButtonClicked()
 {
