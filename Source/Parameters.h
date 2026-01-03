@@ -10,6 +10,12 @@
 #include <JuceHeader.h>
 #pragma once
 const juce::ParameterID windGainParamID{ "windGain", 1 };
+const juce::ParameterID windCrossfadeParamID{ "windCrossfade",1 };
+const juce::ParameterID randomThunderToggleParamID{ "randomThunderToggle" , 1 };
+const juce::ParameterID minIntervalThunderParamID{ "minIntervalThunder" , 1 };
+const juce::ParameterID maxIntervalThunderParamID{ "maxIntervalThunder" , 1 };
+
+
 
 class Parameters {
 public:
@@ -22,9 +28,21 @@ public:
     void update()noexcept;
 
     float windGain = 0.0f;
-
+    float windCrossfade = 0.0f;
+    bool randomThunderToggle = false;
+    float minIntThunder = 0.0f;
+    float maxIntThunder = 0.0f;
 
 private:
     juce::AudioParameterFloat* windGainParam;
     juce::LinearSmoothedValue<float> windGainSmoother;
+    juce::AudioParameterFloat* windCrossfadeParam;
+    juce::LinearSmoothedValue<float> windCrossfadeSmoother;
+    juce::AudioParameterBool* randomThunderToggleParam;
+    juce::AudioParameterFloat* minIntervalThunderParam;
+    juce::LinearSmoothedValue<float> minIntervalThunderSmoother;
+    juce::AudioParameterFloat* maxIntervalThunderParam;
+    juce::LinearSmoothedValue<float> maxIntervalThunderSmoother;
+
+   
 };

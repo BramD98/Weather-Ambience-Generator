@@ -69,37 +69,36 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 
 	// Setup random trigger toggle
 	randomThunderToggle.setButtonText("Random Thunder");
-	randomThunderToggle.onClick = [this]() { onRandomToggleChanged(); };
+	randomThunderToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(
+		audioProcessor.apvts,
+		randomThunderToggleParamID.getParamID(),  
+		randomThunderToggle);
 	addAndMakeVisible(randomThunderToggle);
 
-	// Setup min interval input
-	minIntervalLabel.setText("Min (sec):", juce::dontSendNotification);
-	minIntervalLabel.setJustificationType(juce::Justification::centredRight);
-	addAndMakeVisible(minIntervalLabel);
+	
 
-	minIntervalInput.setText("5.0");
-	minIntervalInput.setFont(juce::Font(14.0f));
-	minIntervalInput.onTextChange = [this]() { onIntervalChanged(); };
-	addAndMakeVisible(minIntervalInput);
-
-	// Setup max interval input
-	maxIntervalLabel.setText("Max (sec):", juce::dontSendNotification);
-	maxIntervalLabel.setJustificationType(juce::Justification::centredRight);
-	addAndMakeVisible(maxIntervalLabel);
-
-	maxIntervalInput.setText("15.0");
-	maxIntervalInput.setFont(juce::Font(14.0f));
-	maxIntervalInput.onTextChange = [this]() { onIntervalChanged(); };
-	addAndMakeVisible(maxIntervalInput);
-
-	// Set thunder player to one-shot mode
-	//audioProcessor.thunderPlayer.setLoopMode(false);
 
 	//Crossfaders
 	windCrossfade.setPlayers(&audioProcessor.calmWindPlayer, &audioProcessor.midWindPlayer,
 		&audioProcessor.strongWindPlayer);
 	windCrossfade.attachMasterGain(audioProcessor.apvts, windGainParamID);
 	addAndMakeVisible(windCrossfade);
+
+	//Interval SLiders one shots
+
+	minIntervalSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+	minIntervalSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+	addAndMakeVisible(minIntervalSlider);
+
+	minIntervalAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+		audioProcessor.apvts, minIntervalThunderParamID.getParamID(), minIntervalSlider);
+
+	maxIntervalSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+	maxIntervalSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+	addAndMakeVisible(maxIntervalSlider);
+
+	maxIntervalAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+		audioProcessor.apvts, maxIntervalThunderParamID.getParamID(), maxIntervalSlider);
 
 
 	//fireCrossfade.setPlayers(&audioProcessor.calmFirePlayer, &audioProcessor.strongFirePlayer);
@@ -160,21 +159,11 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::resized()
 	auto randomSection = thunderSection.removeFromTop(60);
 	randomThunderToggle.setBounds(randomSection.removeFromTop(25));
 	randomSection.removeFromTop(5);
-
-	// Min/Max interval inputs
+	//Interval sliders
 	auto intervalRow = randomSection.removeFromTop(25);
-	auto leftHalf = intervalRow.removeFromLeft(intervalRow.getWidth() / 2);
-
-	minIntervalLabel.setBounds(leftHalf.removeFromLeft(70));
-	leftHalf.removeFromLeft(5);
-	minIntervalInput.setBounds(leftHalf.removeFromLeft(60));
-
-	intervalRow.removeFromLeft(10);
-	maxIntervalLabel.setBounds(intervalRow.removeFromLeft(70));
-	intervalRow.removeFromLeft(5);
-	maxIntervalInput.setBounds(intervalRow.removeFromLeft(60));
-
-	area.removeFromTop(20);
+	minIntervalSlider.setBounds(intervalRow.removeFromLeft(intervalRow.getWidth() / 2).reduced(5));
+	maxIntervalSlider.setBounds(intervalRow.reduced(5));
+	
 
 	// Status label
 	statusLabel.setBounds(area.removeFromTop(100));
@@ -185,25 +174,7 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::triggerThunder()
 	audioProcessor.thunderPlayer.trigger();
 }
 
-void WeatherAmbienceGeneratorAudioProcessorEditor::onRandomToggleChanged()
-{
-	bool isEnabled = randomThunderToggle.getToggleState();
-	audioProcessor.thunderPlayer.setRandomTriggerEnabled(isEnabled);
 
-	// Update interval if enabling
-	if (isEnabled)
-	{
-		onIntervalChanged();
-	}
-}
-
-void WeatherAmbienceGeneratorAudioProcessorEditor::onIntervalChanged()
-{
-	float minInterval = minIntervalInput.getText().getFloatValue();
-	float maxInterval = maxIntervalInput.getText().getFloatValue();
-
-	audioProcessor.thunderPlayer.setRandomTriggerInterval(minInterval, maxInterval);
-}
 
 void WeatherAmbienceGeneratorAudioProcessorEditor::onFetchButtonClicked()
 {

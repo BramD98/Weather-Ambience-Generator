@@ -115,6 +115,11 @@ void CrossfadeComponent::attachMasterGain(juce::AudioProcessorValueTreeState& ap
         apvts, parameterID.getParamID(), masterGainSlider);
 }
 
+void CrossfadeComponent::attachCrossfadeParam(juce::AudioProcessorValueTreeState& apvts, const juce::ParameterID& parameterID)
+{
+    crossfadeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, parameterID.getParamID(), crossfadeSlider);
+}
+
 float CrossfadeComponent::getCrossfadeValue() const
 {
     return static_cast<float>(crossfadeSlider.getValue());

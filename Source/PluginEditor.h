@@ -48,17 +48,20 @@ private:
     juce::Label windGainLabel;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> windGainAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> randomThunderToggleAttachment;
     //FileLoader fileLoader;
     CrossfadeComponent windCrossfade;
     CrossfadeComponent fireCrossfade;
     juce::TextButton thunderTriggerButton;
     juce::ToggleButton randomThunderToggle;
     juce::Label minIntervalLabel, maxIntervalLabel;
-    juce::TextEditor minIntervalInput, maxIntervalInput;
+    juce::Slider minIntervalSlider;
+    juce::Slider maxIntervalSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> minIntervalAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> maxIntervalAttachment;
 
     // Thunder methods
     void triggerThunder();
-    void onRandomToggleChanged();
     void onIntervalChanged();
 
     void onFetchButtonClicked();

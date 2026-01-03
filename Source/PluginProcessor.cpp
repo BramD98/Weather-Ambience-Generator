@@ -163,11 +163,12 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 	{
 		//DBG("windGain: " << params.windGain);
 	}
+	thunderPlayer.setRandomTriggerEnabled(params.randomThunderToggle);
+	thunderPlayer.setRandomTriggerInterval(params.minIntThunder, params.maxIntThunder);
+
+	
 	
 	ProcessSamplePlayers(buffer); //Puts samples of all sampleplayers on the buffer
-	
-
-
 	protectYourEars(buffer);
 }
 
@@ -222,7 +223,7 @@ void WeatherAmbienceGeneratorAudioProcessor::PrepareSamplePlayers(double sampleR
 
 	thunderPlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
 	thunderPlayer.setLoopMode(false);
-
+	thunderPlayer.setRandomTriggerEnabled(params.randomThunderToggle);
 
 	calmWindPlayer.start();
 	midWindPlayer.start();

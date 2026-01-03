@@ -113,11 +113,24 @@ bool AudioSamplePlayer::loadFile(const juce::String& filePath)
 
 void AudioSamplePlayer::passSampleToBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
+    static int checkCounter = 0;
+    if (++checkCounter % 200 == 0)
+    {
+        DBG("passSampleToBuffer called - randomEnabled: " + juce::String(randomTriggerEnabled.load() ? "TRUE" : "FALSE") +
+            " isLoaded: " + juce::String(isLoaded ? "TRUE" : "FALSE"));
+    }
+
     // Handle random triggering
     if (randomTriggerEnabled.load() && isLoaded)
     {
         samplesSinceLastTrigger += numSamples;
 
+        static int debugCounter = 0;
+        if (++debugCounter % 100 == 0)
+        {
+            DBG("Random trigger check - since: " + juce::String(samplesSinceLastTrigger) +
+                " target: " + juce::String(samplesToNextTrigger));
+        }
         if (samplesSinceLastTrigger >= samplesToNextTrigger)
         {
             trigger();
@@ -212,9 +225,12 @@ void AudioSamplePlayer::trigger()
 
 void AudioSamplePlayer::setRandomTriggerEnabled(bool enabled)
 {
+  
+    bool wasEnabled = randomTriggerEnabled.load();
     randomTriggerEnabled = enabled;
 
-    if (enabled)
+    // Only schedule when transitioning from false to true
+    if (enabled && !wasEnabled)
     {
         scheduleNextRandomTrigger();
     }
@@ -226,8 +242,18 @@ void AudioSamplePlayer::setRandomTriggerInterval(float minSeconds, float maxSeco
     if (minSeconds < 0.1f) minSeconds = 0.1f;
     if (maxSeconds < minSeconds) maxSeconds = minSeconds;
 
+    // Only reschedule if the values actually changed
+    float oldMin = minRandomInterval.load();
+    float oldMax = maxRandomInterval.load();
+
     minRandomInterval = minSeconds;
     maxRandomInterval = maxSeconds;
+
+    // Only reschedule if intervals changed AND random triggering is enabled
+    if (randomTriggerEnabled.load() && (oldMin != minSeconds || oldMax != maxSeconds))
+    {
+        scheduleNextRandomTrigger();
+    }
 }
 
 bool AudioSamplePlayer::isRandomTriggerEnabled() const
