@@ -1,40 +1,43 @@
+/*
+  ==============================================================================
+    CrossfadeComponent.h - Logic only, no UI
+  ==============================================================================
+*/
 
-#include "JuceHeader.h"
+#pragma once
+#include <JuceHeader.h>
 #include "AudioSamplePlayer.h"
 
-class CrossfadeComponent : public juce::Component, private juce::Slider::Listener
+class CrossfadeComponent
 {
 public:
-    CrossfadeComponent(const juce::String& label1, const juce::String& label2, const juce::String& label3);
+    CrossfadeComponent();
     ~CrossfadeComponent();
 
-    void paint(juce::Graphics& g) override;
-    void resized() override;
-
+    // Set the three players
     void setPlayers(AudioSamplePlayer* playerA_ptr,
         AudioSamplePlayer* playerB_ptr,
         AudioSamplePlayer* playerC_ptr);
-    void attachMasterGain(juce::AudioProcessorValueTreeState& apvts, const juce::ParameterID& parameterID);
-    void attachCrossfadeParam(juce::AudioProcessorValueTreeState& apvts, const juce::ParameterID& parameterID);
-    float getCrossfadeValue() const;
+
+    // Set crossfade value (0.0 to 2.0)
     void setCrossfadeValue(float value);
+
+    // Get current crossfade value
+    float getCrossfadeValue() const;
+
+    // Set master gain
     void setMasterGain(float gain);
+
+    // Get master gain
+    float getMasterGain() const;
+
 private:
-    void sliderValueChanged(juce::Slider* slider) override;
-    void updatePlayerGains();
-
-    juce::Slider crossfadeSlider;
-    juce::Slider masterGainSlider;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterGainAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> crossfadeAttachment;
-    juce::Label labelA, labelB, labelC;
-    juce::Label centerLabel;
-    juce::String nameA, nameB, nameC;
-    std::atomic<float>masterGain{ 1.0f };
-
     AudioSamplePlayer* playerA = nullptr;
     AudioSamplePlayer* playerB = nullptr;
     AudioSamplePlayer* playerC = nullptr;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CrossfadeComponent)
+    float crossfadeValue = 0.0f;
+    std::atomic<float> masterGain{ 1.0f };
+
+    void updatePlayerGains();
 };

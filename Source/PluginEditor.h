@@ -17,6 +17,9 @@
 #include "PluginProcessor.h"
 #include "FileLoader.h"
 #include "CrossfadeComponent.h"
+#include "ArcticLookAndFeel.h"
+#include "LoopComponent.h"
+
 
 #ifdef _MSC_VER
 #pragma warning(pop)
@@ -44,14 +47,10 @@ private:
     juce::TextButton fetchButton;
     juce::Label statusLabel;
 
-    juce::Slider windGainSlider;
-    juce::Label windGainLabel;
-
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> windGainAttachment;
+    
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> randomThunderToggleAttachment;
     //FileLoader fileLoader;
-    CrossfadeComponent windCrossfade;
-    CrossfadeComponent fireCrossfade;
+   
     juce::TextButton thunderTriggerButton;
     juce::ToggleButton randomThunderToggle;
     juce::Label minIntervalLabel, maxIntervalLabel;
@@ -62,10 +61,14 @@ private:
 
     // Thunder methods
     void triggerThunder();
-    void onIntervalChanged();
-
     void onFetchButtonClicked();
     void onWeatherUpdate(const WeatherManager::WeatherData& data);
+    ArcticLookAndFeel mainLNF;
+    juce::Image rotaryKnobImg;
+    juce::Image rotaryRingImg;
+    juce::Image textBoxImg;
+    
+    LoopComponent windLoopComponent;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WeatherAmbienceGeneratorAudioProcessorEditor)
 };

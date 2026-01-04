@@ -5,6 +5,11 @@
               companyName="ArcticAudio" pluginManufacturerCode="ARAU" cppLanguageStandard="20">
   <MAINGROUP id="QSZ6pK" name="Weather Ambience Generator">
     <GROUP id="{A7E1660C-E0EC-12DF-F006-CBFF776DD3D7}" name="Resources">
+      <FILE id="qsEqZh" name="ABOFont.ttf" compile="0" resource="1" file="Resources/ABOFont.ttf"/>
+      <FILE id="NVfD3k" name="button_bg.png" compile="0" resource="1" file="Resources/button_bg.png"/>
+      <FILE id="ZF8qKf" name="RotaryKnob.png" compile="0" resource="1" file="Resources/RotaryKnob.png"/>
+      <FILE id="nBZF0r" name="RotaryRing.png" compile="0" resource="1" file="Resources/RotaryRing.png"/>
+      <FILE id="d7Vxar" name="textBoxImg.png" compile="0" resource="1" file="Resources/textBoxImg.png"/>
       <FILE id="TMmqZs" name="Wind_Calm.wav" compile="0" resource="1" file="../SFX/Wind_Calm.wav"/>
     </GROUP>
     <GROUP id="{895E372E-150C-B568-26E5-306235988641}" name="Source">
@@ -17,22 +22,51 @@
       <FILE id="lmKvnf" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
     <GROUP id="{86DEE6B8-7A6F-3BCA-30F9-BBD799547A9C}" name="Helpers">
-      <FILE id="UVjcZB" name="CrossfadeComponent.cpp" compile="1" resource="0"
-            file="Source/CrossfadeComponent.cpp"/>
-      <FILE id="N2BMOd" name="CrossfadeComponent.h" compile="0" resource="0"
-            file="Source/CrossfadeComponent.h"/>
-      <FILE id="V4Yr95" name="FileLoader.cpp" compile="1" resource="0" file="Source/FileLoader.cpp"/>
-      <FILE id="CsSPol" name="FileLoader.h" compile="0" resource="0" file="Source/FileLoader.h"/>
-      <FILE id="K4uzLG" name="AudioSamplePlayer.cpp" compile="1" resource="0"
-            file="Source/AudioSamplePlayer.cpp"/>
-      <FILE id="KdLOfU" name="AudioSamplePlayer.h" compile="0" resource="0"
-            file="Source/AudioSamplePlayer.h"/>
-      <FILE id="pzxIww" name="WeatherManager.h" compile="0" resource="0"
-            file="Source/WeatherManager.h"/>
-      <FILE id="ei5h27" name="WeatherFetcher.h" compile="0" resource="0"
-            file="Source/WeatherFetcher.h"/>
-      <FILE id="P99bSC" name="Parameters.cpp" compile="1" resource="0" file="Source/Parameters.cpp"/>
-      <FILE id="fHNmpP" name="Parameters.h" compile="0" resource="0" file="Source/Parameters.h"/>
+      <GROUP id="{6765CF74-C511-88C2-A8A9-DD4DA4F0EA6C}" name="AudioBuffers">
+        <FILE id="K4uzLG" name="AudioSamplePlayer.cpp" compile="1" resource="0"
+              file="Source/AudioSamplePlayer.cpp"/>
+        <FILE id="KdLOfU" name="AudioSamplePlayer.h" compile="0" resource="0"
+              file="Source/AudioSamplePlayer.h"/>
+      </GROUP>
+      <GROUP id="{865971E1-0B82-1DEE-7C80-17F080C7EFD9}" name="FileLoading">
+        <FILE id="V4Yr95" name="FileLoader.cpp" compile="1" resource="0" file="Source/FileLoader.cpp"/>
+        <FILE id="CsSPol" name="FileLoader.h" compile="0" resource="0" file="Source/FileLoader.h"/>
+      </GROUP>
+      <GROUP id="{45F8A696-9B5E-1251-02EE-204839D791F3}" name="Crossfades">
+        <FILE id="UVjcZB" name="CrossfadeComponent.cpp" compile="1" resource="0"
+              file="Source/CrossfadeComponent.cpp"/>
+        <FILE id="N2BMOd" name="CrossfadeComponent.h" compile="0" resource="0"
+              file="Source/CrossfadeComponent.h"/>
+      </GROUP>
+      <GROUP id="{7BCAA5F3-441F-0CAE-D8CC-B3BD6127C961}" name="Parameters">
+        <FILE id="P99bSC" name="Parameters.cpp" compile="1" resource="0" file="Source/Parameters.cpp"/>
+        <FILE id="fHNmpP" name="Parameters.h" compile="0" resource="0" file="Source/Parameters.h"/>
+      </GROUP>
+      <GROUP id="{3344051A-DA9C-134A-EFFF-A5A7582448AD}" name="API">
+        <FILE id="pzxIww" name="WeatherManager.h" compile="0" resource="0"
+              file="Source/WeatherManager.h"/>
+        <FILE id="ei5h27" name="WeatherFetcher.h" compile="0" resource="0"
+              file="Source/WeatherFetcher.h"/>
+      </GROUP>
+      <GROUP id="{471A9919-7C49-7797-5752-C7A6B31265B0}" name="UI">
+        <FILE id="Suk7T2" name="ArcticLookAndFeel.cpp" compile="1" resource="0"
+              file="Source/ArcticLookAndFeel.cpp"/>
+        <FILE id="qHb2yF" name="ArcticLookAndFeel.h" compile="0" resource="0"
+              file="Source/ArcticLookAndFeel.h"/>
+        <FILE id="xYUy80" name="Font.cpp" compile="1" resource="0" file="Source/Font.cpp"/>
+        <FILE id="lFxhHL" name="Font.h" compile="0" resource="0" file="Source/Font.h"/>
+        <FILE id="QyUdoC" name="LoopComponent.cpp" compile="1" resource="0"
+              file="Source/LoopComponent.cpp"/>
+        <FILE id="EMvZNf" name="LoopComponent.h" compile="0" resource="0" file="Source/LoopComponent.h"/>
+        <FILE id="hkrlkZ" name="RotarySliderALNF.cpp" compile="1" resource="0"
+              file="Source/RotarySliderALNF.cpp"/>
+        <FILE id="h4ghHz" name="RotarySliderALNF.h" compile="0" resource="0"
+              file="Source/RotarySliderALNF.h"/>
+        <FILE id="w0gZ2u" name="VerticalSliderALNF.cpp" compile="1" resource="0"
+              file="Source/VerticalSliderALNF.cpp"/>
+        <FILE id="YjcRnv" name="VerticalSliderALNF.h" compile="0" resource="0"
+              file="Source/VerticalSliderALNF.h"/>
+      </GROUP>
       <FILE id="JvteJt" name="ProtectYourEars.h" compile="0" resource="0"
             file="Source/ProtectYourEars.h"/>
     </GROUP>

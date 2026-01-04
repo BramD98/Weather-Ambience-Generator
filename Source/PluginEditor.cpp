@@ -12,18 +12,20 @@
 
 //==============================================================================
 WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProcessorEditor(WeatherAmbienceGeneratorAudioProcessor& p)
-	: AudioProcessorEditor(&p), audioProcessor(p), windCrossfade("Calm Wind", "Mid Wind", "Strong Wind"), fireCrossfade("Calm Fire", "Mid Fire", "Strong Fire")
+	: AudioProcessorEditor(&p), audioProcessor(p), windLoopComponent("Wind")
 {
-	// Make sure that before the constructor has finished, you've set the
-	// editor's size to whatever you need it to be.
-
+	rotaryRingImg = juce::ImageFileFormat::loadFrom(BinaryData::RotaryRing_png, BinaryData::RotaryRing_pngSize);
+	rotaryKnobImg = juce::ImageFileFormat::loadFrom(BinaryData::RotaryKnob_png, BinaryData::RotaryKnob_pngSize);
+	textBoxImg = juce::ImageFileFormat::loadFrom(BinaryData::textBoxImg_png, BinaryData::textBoxImg_pngSize);
+	mainLNF.setRotaryKnobImages(rotaryRingImg, rotaryKnobImg, textBoxImg);
+	setLookAndFeel(&mainLNF);
 	setSize(1200, 900);
 	// Setup city input
 	cityInput.setText("London");
 	cityInput.setFont(juce::Font(16.0f));
 	addAndMakeVisible(cityInput);
 
-	// Setup fetch button
+	// Setup fetch button5
 	fetchButton.setButtonText("Fetch Weather");
 	fetchButton.onClick = [this]() { onFetchButtonClicked(); };
 	addAndMakeVisible(fetchButton);
@@ -34,20 +36,13 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 	statusLabel.setJustificationType(juce::Justification::centred);
 	addAndMakeVisible(statusLabel);
 
-	// Setup wind gain slider
-	windGainSlider.setSliderStyle(juce::Slider::LinearVertical);
-	windGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
-	addAndMakeVisible(windGainSlider);
+	addAndMakeVisible(windLoopComponent);
 
-	// Setup label
-	windGainLabel.setText("Wind", juce::dontSendNotification);
-	windGainLabel.setJustificationType(juce::Justification::centred);
-	addAndMakeVisible(windGainLabel);
-
-	// Attach slider to APVTS parameter
-	windGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-		audioProcessor.apvts, windGainParamID.getParamID(), windGainSlider);
-
+	// Set attachments - what are your parameter IDs for wind intensity and gain?
+	windLoopComponent.setIntensityAttachment(audioProcessor.apvts, windCrossfadeParamID.getParamID());
+	windLoopComponent.setGainAttachment(audioProcessor.apvts, windGainParamID.getParamID());
+	windLoopComponent.setPlayers(&audioProcessor.calmWindPlayer, &audioProcessor.midWindPlayer,
+		&audioProcessor.strongWindPlayer);
 
 	/*fileLoader.registerPlayer("Calm Wind", &audioProcessor.calmWindPlayer);
 	fileLoader.registerPlayer("Mid Wind", &audioProcessor.midWindPlayer);
@@ -78,11 +73,7 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 	
 
 
-	//Crossfaders
-	windCrossfade.setPlayers(&audioProcessor.calmWindPlayer, &audioProcessor.midWindPlayer,
-		&audioProcessor.strongWindPlayer);
-	windCrossfade.attachMasterGain(audioProcessor.apvts, windGainParamID);
-	addAndMakeVisible(windCrossfade);
+	
 
 	//Interval SLiders one shots
 
@@ -107,6 +98,7 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 
 WeatherAmbienceGeneratorAudioProcessorEditor::~WeatherAmbienceGeneratorAudioProcessorEditor()
 {
+	setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -124,27 +116,11 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::resized()
 {
 	auto area = getLocalBounds().reduced(20);
 
-	// Top section - wind gain slider and label on the left
-	auto topSection = area.removeFromTop(250);
-	auto sliderSection = topSection.removeFromLeft(100);
-
-	windGainLabel.setBounds(sliderSection.removeFromTop(20));
-	sliderSection.removeFromTop(5);
-	windGainSlider.setBounds(sliderSection.removeFromTop(200));
-
-	// Right side of top section - file loader
-	topSection.removeFromLeft(10);  // spacing
-	audioProcessor.fileLoader.setBounds(topSection.removeFromTop(120));
+	// Top section - file loader
+	auto topSection = area.removeFromTop(120);
+	audioProcessor.fileLoader.setBounds(topSection);
 
 	area.removeFromTop(10);
-
-	// Wind crossfade
-	windCrossfade.setBounds(area.removeFromTop(100));
-	area.removeFromTop(10);
-
-	// Fire crossfade
-	fireCrossfade.setBounds(area.removeFromTop(100));
-	area.removeFromTop(20);
 
 	// Thunder section
 	auto thunderSection = area.removeFromTop(120);
@@ -159,14 +135,21 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::resized()
 	auto randomSection = thunderSection.removeFromTop(60);
 	randomThunderToggle.setBounds(randomSection.removeFromTop(25));
 	randomSection.removeFromTop(5);
-	//Interval sliders
+
+	// Interval sliders
 	auto intervalRow = randomSection.removeFromTop(25);
 	minIntervalSlider.setBounds(intervalRow.removeFromLeft(intervalRow.getWidth() / 2).reduced(5));
 	maxIntervalSlider.setBounds(intervalRow.reduced(5));
-	
+
+	area.removeFromTop(10);
 
 	// Status label
 	statusLabel.setBounds(area.removeFromTop(100));
+
+	area.removeFromTop(10);
+
+	// Wind loop component at the BOTTOM
+	windLoopComponent.setBounds(area.removeFromLeft(150));
 }
 
 void WeatherAmbienceGeneratorAudioProcessorEditor::triggerThunder()
