@@ -48,7 +48,7 @@ private:
     int position = 0;
     double currentSampleRate = 44100.0f;
     double sourceSampleRate = 0.0f;
-    std::atomic<float> gain = 1.0f;
+    std::atomic<float> gain = 0.0f;
     bool isLoaded = false;
     bool isPlaying = false;
     bool loopMode = true;

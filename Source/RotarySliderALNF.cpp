@@ -39,39 +39,64 @@ void RotarySliderArcticLookAndFeel::drawRotarySlider(juce::Graphics& g,
     juce::Slider& slider)
 {
     float alpha = slider.isEnabled() ? 1.0f : 0.3f;
+
+    // ============================================
+    // ACCOUNT FOR TEXT BOX BELOW
+    // ============================================
+    const int textBoxHeight = slider.getTextBoxHeight();
+    const int knobAreaHeight = height - textBoxHeight;
+
     const float centerX = x + width * 0.5f;
-    const float centerY = y + height * 0.5f;
+    const float centerY = y + knobAreaHeight * 0.5f;
 
-    const float knobSize = juce::jmin(width, height) * 0.85f;
-    const float ringSize = juce::jmin(width, height) * 1.0f;
+    const float knobSize = juce::jmin(width, knobAreaHeight) * 0.85f;
+    const float ringSize = juce::jmin(width, knobAreaHeight);
 
-    const float angle = rotaryStartAngle + sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
+    const float angle =
+        rotaryStartAngle +
+        sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
 
     const float meterThickness = 3.0f;
     const float radius = ringSize * 0.51f - meterThickness;
 
-    // Draw empty meter
+    // Empty meter
     juce::Path emptyMeterPath;
-    emptyMeterPath.addCentredArc(centerX, centerY, radius, radius, 0.0f,
-        rotaryStartAngle, rotaryEndAngle, true);
+    emptyMeterPath.addCentredArc(
+        centerX, centerY,
+        radius, radius,
+        0.0f,
+        rotaryStartAngle,
+        rotaryEndAngle,
+        true
+    );
+
     g.setColour(juce::Colour(0x334FCFFF).withMultipliedAlpha(alpha));
-    g.strokePath(emptyMeterPath, juce::PathStrokeType(meterThickness,
-        juce::PathStrokeType::curved,
-        juce::PathStrokeType::rounded));
+    g.strokePath(emptyMeterPath,
+        juce::PathStrokeType(meterThickness,
+            juce::PathStrokeType::curved,
+            juce::PathStrokeType::rounded));
 
-    // Draw active meter
+    // Active meter
     juce::Path meterPath;
-    meterPath.addCentredArc(centerX, centerY, radius, radius, 0.0f,
-        rotaryStartAngle, angle, true);
-    g.setColour(juce::Colour(0XFFA0FFFC).withMultipliedAlpha(alpha));
-    g.strokePath(meterPath, juce::PathStrokeType(meterThickness,
-        juce::PathStrokeType::curved,
-        juce::PathStrokeType::rounded));
+    meterPath.addCentredArc(
+        centerX, centerY,
+        radius, radius,
+        0.0f,
+        rotaryStartAngle,
+        angle,
+        true
+    );
 
-    // Draw knob image
+    g.setColour(juce::Colour(0XFFA0FFFC).withMultipliedAlpha(alpha));
+    g.strokePath(meterPath,
+        juce::PathStrokeType(meterThickness,
+            juce::PathStrokeType::curved,
+            juce::PathStrokeType::rounded));
+
+    // Knob image
     if (knobImage.isValid())
     {
-        const float knobImageSize = static_cast<float>(knobImage.getWidth());
+        const float knobImageSize = (float)knobImage.getWidth();
         const float knobScale = knobSize / knobImageSize;
 
         juce::AffineTransform knobTransform =
@@ -81,14 +106,9 @@ void RotarySliderArcticLookAndFeel::drawRotarySlider(juce::Graphics& g,
             .rotated(angle)
             .translated(centerX, centerY);
 
-        g.setOpacity(slider.isEnabled() ? 1.0f : 0.3f);
+        g.setOpacity(alpha);
         g.drawImageTransformed(knobImage, knobTransform, false);
         g.setOpacity(1.0f);
-    }
-    else if (!ringImage.isValid())
-    {
-        g.setColour(juce::Colours::grey);
-        g.fillEllipse(x + 4, y + 4, width - 8, height - 8);
     }
 }
 

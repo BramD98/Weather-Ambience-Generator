@@ -165,6 +165,7 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 	}
 	thunderPlayer.setRandomTriggerEnabled(params.randomThunderToggle);
 	thunderPlayer.setRandomTriggerInterval(params.minIntThunder, params.maxIntThunder);
+	thunderPlayer.setGain(params.randomThunderGain);
 
 	
 	
@@ -202,7 +203,12 @@ void WeatherAmbienceGeneratorAudioProcessor::FileLoaderRegisterPlayers()
 {
 	fileLoader.registerPlayer("Calm Wind", &calmWindPlayer);
 	fileLoader.registerPlayer("Mid Wind", &midWindPlayer);
-	fileLoader.registerPlayer("Strong Wind", &strongWindPlayer);
+	fileLoader.registerPlayer("Heavy Wind", &strongWindPlayer);
+
+	fileLoader.registerPlayer("Calm Rain", &calmRainPlayer);
+	fileLoader.registerPlayer("Mid Rain", &midRainPlayer);
+	fileLoader.registerPlayer("Heavy Rain", &heavyRainPlayer);
+
 
 	fileLoader.registerPlayer("Calm Fire", &calmFirePlayer);
 	fileLoader.registerPlayer("Strong Fire", &strongFirePlayer);
@@ -213,21 +219,45 @@ void WeatherAmbienceGeneratorAudioProcessor::FileLoaderRegisterPlayers()
 void WeatherAmbienceGeneratorAudioProcessor::PrepareSamplePlayers(double sampleRate, int samplesPerBlock)
 {
 	calmWindPlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
-	juce::File file("C:/Users/bramd/Desktop/WeatherAmbGenerator/SFX/Wind_Calm.wav");
-	fileLoader.loadFileForPlayer("Calm Wind", file);
+	juce::File windCalmFile("C:/Users/bramd/Desktop/WeatherAmbGenerator/SFX/Wind/Calm_Wind.wav");
+	fileLoader.loadFileForPlayer("Calm Wind", windCalmFile);
+
 	midWindPlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
+	juce::File windMidFile("C:/Users/bramd/Desktop/WeatherAmbGenerator/SFX/Wind/Mid_Wind.wav");
+	fileLoader.loadFileForPlayer("Mid Wind", windMidFile);
 
 	strongWindPlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
+	juce::File windHeavyFile("C:/Users/bramd/Desktop/WeatherAmbGenerator/SFX/Wind/Heavy_Wind.wav");
+	fileLoader.loadFileForPlayer("Heavy Wind", windHeavyFile);
+
+	calmRainPlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
+	juce::File rainCalmFile("C:/Users/bramd/Desktop/WeatherAmbGenerator/SFX/Rain/Calm_Rain.wav"); //C:\Users\bramd\Desktop\WeatherAmbGenerator\SFX\Rain
+	fileLoader.loadFileForPlayer("Calm Rain", rainCalmFile);
+
+	midRainPlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
+	juce::File rainMidFile("C:/Users/bramd/Desktop/WeatherAmbGenerator/SFX/Rain/Mid_Rain.wav"); //C:\Users\bramd\Desktop\WeatherAmbGenerator\SFX\Rain
+	fileLoader.loadFileForPlayer("Mid Rain", rainMidFile);
+
+	heavyRainPlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
+	juce::File rainHeavyFile("C:/Users/bramd/Desktop/WeatherAmbGenerator/SFX/Rain/Heavy_Rain.wav"); //C:\Users\bramd\Desktop\WeatherAmbGenerator\SFX\Rain
+	fileLoader.loadFileForPlayer("Heavy Rain", rainHeavyFile);
+
 	calmFirePlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
 	strongFirePlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
 
 	thunderPlayer.prepareSamplePlayer(sampleRate, samplesPerBlock);
 	thunderPlayer.setLoopMode(false);
 	thunderPlayer.setRandomTriggerEnabled(params.randomThunderToggle);
+	
 
 	calmWindPlayer.start();
 	midWindPlayer.start();
 	strongWindPlayer.start();
+
+	calmRainPlayer.start();
+	midRainPlayer.start();
+	heavyRainPlayer.start();
+
 	calmFirePlayer.start();
 	strongFirePlayer.start();
 }
@@ -237,9 +267,14 @@ void WeatherAmbienceGeneratorAudioProcessor::ProcessSamplePlayers(juce::AudioBuf
 	calmWindPlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
 	midWindPlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
 	strongWindPlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
+
+	calmRainPlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
+	midRainPlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
+	heavyRainPlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
+
+
 	calmFirePlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
 	strongFirePlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
-
 	thunderPlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
 }
 

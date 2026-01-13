@@ -20,9 +20,9 @@ VerticalSliderWithLabel::VerticalSliderWithLabel(const juce::String& labelText)
     slider.setValue(50.0);
     addAndMakeVisible(slider);
 
-    // Setup name label (e.g., "Intensity")
     nameLabel.setText(labelText, juce::dontSendNotification);
     nameLabel.setJustificationType(juce::Justification::centred);
+    nameLabel.setFont(juce::Font(12.0f)); // Add this line - smaller font
     addAndMakeVisible(nameLabel);
 
     // Setup value label (shows the number) - BIGGER FONT
@@ -42,6 +42,7 @@ VerticalSliderWithLabel::~VerticalSliderWithLabel()
 
 void VerticalSliderWithLabel::paint(juce::Graphics& g)
 {
+
 }
 
 void VerticalSliderWithLabel::resized()
@@ -51,17 +52,12 @@ void VerticalSliderWithLabel::resized()
     // Name label at TOP (if not empty)
     if (nameLabel.getText().isNotEmpty())
     {
-        nameLabel.setBounds(bounds.removeFromTop(20));
-        bounds.removeFromTop(3); // small gap
+        nameLabel.setBounds(bounds.removeFromTop(18)); // Slightly smaller
+        bounds.removeFromTop(2); // Very small gap between label and slider
     }
 
-    // Value display below name
-    valueLabel.setBounds(bounds.removeFromTop(35));
-
-    bounds.removeFromTop(5); // gap
-
-    // Slider takes remaining space
-    slider.setBounds(bounds.reduced(15, 5));
+    // Slider takes ALL remaining space - goes all the way to top
+    slider.setBounds(bounds.reduced(15, 3)); // Less vertical reduction at top
 }
 
 void VerticalSliderWithLabel::updateValueLabel()

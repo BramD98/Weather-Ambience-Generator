@@ -62,10 +62,18 @@
               file="Source/RotarySliderALNF.cpp"/>
         <FILE id="h4ghHz" name="RotarySliderALNF.h" compile="0" resource="0"
               file="Source/RotarySliderALNF.h"/>
+        <FILE id="hwAbsQ" name="TriggerComponent.cpp" compile="1" resource="0"
+              file="Source/TriggerComponent.cpp"/>
+        <FILE id="I4zsKY" name="TriggerComponent.h" compile="0" resource="0"
+              file="Source/TriggerComponent.h"/>
         <FILE id="w0gZ2u" name="VerticalSliderALNF.cpp" compile="1" resource="0"
               file="Source/VerticalSliderALNF.cpp"/>
         <FILE id="YjcRnv" name="VerticalSliderALNF.h" compile="0" resource="0"
               file="Source/VerticalSliderALNF.h"/>
+        <FILE id="Isc2Zl" name="WeatherAPIComponent.cpp" compile="1" resource="0"
+              file="Source/WeatherAPIComponent.cpp"/>
+        <FILE id="YZpn1t" name="WeatherAPIComponent.h" compile="0" resource="0"
+              file="Source/WeatherAPIComponent.h"/>
       </GROUP>
       <FILE id="JvteJt" name="ProtectYourEars.h" compile="0" resource="0"
             file="Source/ProtectYourEars.h"/>

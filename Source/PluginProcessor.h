@@ -71,6 +71,11 @@ public:
     AudioSamplePlayer calmWindPlayer;
     AudioSamplePlayer midWindPlayer;
     AudioSamplePlayer strongWindPlayer;
+
+    AudioSamplePlayer calmRainPlayer;
+    AudioSamplePlayer midRainPlayer;
+    AudioSamplePlayer heavyRainPlayer;
+
     AudioSamplePlayer calmFirePlayer;
     AudioSamplePlayer strongFirePlayer;
 

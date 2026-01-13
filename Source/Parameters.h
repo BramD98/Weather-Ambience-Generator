@@ -11,9 +11,13 @@
 #pragma once
 const juce::ParameterID windGainParamID{ "windGain", 1 };
 const juce::ParameterID windCrossfadeParamID{ "windCrossfade",1 };
+const juce::ParameterID rainGainParamID{ "rainGain", 1 };
+const juce::ParameterID rainCrossfadeParamID{ "rainCrossfade",1 };
+
 const juce::ParameterID randomThunderToggleParamID{ "randomThunderToggle" , 1 };
 const juce::ParameterID minIntervalThunderParamID{ "minIntervalThunder" , 1 };
 const juce::ParameterID maxIntervalThunderParamID{ "maxIntervalThunder" , 1 };
+const juce::ParameterID randomThunderGainParamID{ "randomThungerGain",1 };
 
 
 
@@ -29,16 +33,31 @@ public:
 
     float windGain = 0.0f;
     float windCrossfade = 0.0f;
+    float rainGain = 0.0f;
+    float rainCrossfade = 0.0f;
     bool randomThunderToggle = false;
     float minIntThunder = 0.0f;
     float maxIntThunder = 0.0f;
+    float randomThunderGain = 0.0f;
 
 private:
+    //Loops
+        //Wind
     juce::AudioParameterFloat* windGainParam;
     juce::LinearSmoothedValue<float> windGainSmoother;
     juce::AudioParameterFloat* windCrossfadeParam;
     juce::LinearSmoothedValue<float> windCrossfadeSmoother;
+        //Rain
+    juce::AudioParameterFloat* rainGainParam;
+    juce::LinearSmoothedValue<float> rainGainSmoother;
+    juce::AudioParameterFloat* rainCrossfadeParam;
+    juce::LinearSmoothedValue<float> rainCrossfadeSmoother;
+
+
+    //Triggers
     juce::AudioParameterBool* randomThunderToggleParam;
+    juce::AudioParameterFloat* randomThunderGainParam;
+    juce::LinearSmoothedValue<float> randomThunderGainSmoother;
     juce::AudioParameterFloat* minIntervalThunderParam;
     juce::LinearSmoothedValue<float> minIntervalThunderSmoother;
     juce::AudioParameterFloat* maxIntervalThunderParam;

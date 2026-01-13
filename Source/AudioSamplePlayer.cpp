@@ -116,8 +116,8 @@ void AudioSamplePlayer::passSampleToBuffer(juce::AudioBuffer<float>& outputBuffe
     static int checkCounter = 0;
     if (++checkCounter % 200 == 0)
     {
-        DBG("passSampleToBuffer called - randomEnabled: " + juce::String(randomTriggerEnabled.load() ? "TRUE" : "FALSE") +
-            " isLoaded: " + juce::String(isLoaded ? "TRUE" : "FALSE"));
+       // DBG("passSampleToBuffer called - randomEnabled: " + juce::String(randomTriggerEnabled.load() ? "TRUE" : "FALSE") +
+           // " isLoaded: " + juce::String(isLoaded ? "TRUE" : "FALSE"));
     }
 
     // Handle random triggering
@@ -128,8 +128,8 @@ void AudioSamplePlayer::passSampleToBuffer(juce::AudioBuffer<float>& outputBuffe
         static int debugCounter = 0;
         if (++debugCounter % 100 == 0)
         {
-            DBG("Random trigger check - since: " + juce::String(samplesSinceLastTrigger) +
-                " target: " + juce::String(samplesToNextTrigger));
+           // DBG("Random trigger check - since: " + juce::String(samplesSinceLastTrigger) +
+                //" target: " + juce::String(samplesToNextTrigger));
         }
         if (samplesSinceLastTrigger >= samplesToNextTrigger)
         {

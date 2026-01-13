@@ -19,6 +19,8 @@
 #include "CrossfadeComponent.h"
 #include "ArcticLookAndFeel.h"
 #include "LoopComponent.h"
+#include "TriggerComponent.h"
+#include "WeatherAPIComponent.h"
 
 
 #ifdef _MSC_VER
@@ -43,19 +45,14 @@ private:
     // access the processor object that created it.
     WeatherAmbienceGeneratorAudioProcessor& audioProcessor;
     
-    juce::TextEditor cityInput;
-    juce::TextButton fetchButton;
-    juce::Label statusLabel;
+    
+    juce::Label titleLabel;
 
     
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> randomThunderToggleAttachment;
     //FileLoader fileLoader;
    
-    juce::TextButton thunderTriggerButton;
-    juce::ToggleButton randomThunderToggle;
-    juce::Label minIntervalLabel, maxIntervalLabel;
-    juce::Slider minIntervalSlider;
-    juce::Slider maxIntervalSlider;
+   
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> minIntervalAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> maxIntervalAttachment;
 
@@ -68,7 +65,10 @@ private:
     juce::Image rotaryRingImg;
     juce::Image textBoxImg;
     
-    LoopComponent windLoopComponent;
+    LoopComponent windLoopComponent; 
+    LoopComponent rainLoopComponent;
+    TriggerComponent thunderComponent;
+    WeatherAPIComponent weatherFetcherComponent;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WeatherAmbienceGeneratorAudioProcessorEditor)
 };

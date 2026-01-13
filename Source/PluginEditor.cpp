@@ -12,37 +12,38 @@
 
 //==============================================================================
 WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProcessorEditor(WeatherAmbienceGeneratorAudioProcessor& p)
-	: AudioProcessorEditor(&p), audioProcessor(p), windLoopComponent("Wind")
+	: AudioProcessorEditor(&p), audioProcessor(p), windLoopComponent("Wind"), rainLoopComponent("Rain"), thunderComponent("Thunder")
 {
 	rotaryRingImg = juce::ImageFileFormat::loadFrom(BinaryData::RotaryRing_png, BinaryData::RotaryRing_pngSize);
 	rotaryKnobImg = juce::ImageFileFormat::loadFrom(BinaryData::RotaryKnob_png, BinaryData::RotaryKnob_pngSize);
 	textBoxImg = juce::ImageFileFormat::loadFrom(BinaryData::textBoxImg_png, BinaryData::textBoxImg_pngSize);
 	mainLNF.setRotaryKnobImages(rotaryRingImg, rotaryKnobImg, textBoxImg);
 	setLookAndFeel(&mainLNF);
-	setSize(1200, 900);
-	// Setup city input
-	cityInput.setText("London");
-	cityInput.setFont(juce::Font(16.0f));
-	addAndMakeVisible(cityInput);
+	setSize(1200, 800);
 
-	// Setup fetch button5
-	fetchButton.setButtonText("Fetch Weather");
-	fetchButton.onClick = [this]() { onFetchButtonClicked(); };
-	addAndMakeVisible(fetchButton);
-
-	// Setup status label
-   // statusLabel.setText("Enter a city and click Fetch Weather", juce::dontSendNotification);
-	statusLabel.setFont(juce::Font(14.0f));
-	statusLabel.setJustificationType(juce::Justification::centred);
-	addAndMakeVisible(statusLabel);
+	// Title setup
+	titleLabel.setText("Weather Ambience Generator", juce::dontSendNotification);
+	titleLabel.setFont(juce::Font(24.0f, juce::Font::bold));
+	titleLabel.setJustificationType(juce::Justification::centred);
+	titleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+	addAndMakeVisible(titleLabel);
+	
+	//Weather Fetcher
+	addAndMakeVisible(weatherFetcherComponent);
+	weatherFetcherComponent.setWeatherManager(audioProcessor.getWeatherManager());
 
 	addAndMakeVisible(windLoopComponent);
+	addAndMakeVisible(rainLoopComponent);
 
 	// Set attachments - what are your parameter IDs for wind intensity and gain?
 	windLoopComponent.setIntensityAttachment(audioProcessor.apvts, windCrossfadeParamID.getParamID());
 	windLoopComponent.setGainAttachment(audioProcessor.apvts, windGainParamID.getParamID());
 	windLoopComponent.setPlayers(&audioProcessor.calmWindPlayer, &audioProcessor.midWindPlayer,
 		&audioProcessor.strongWindPlayer);
+
+	rainLoopComponent.setIntensityAttachment(audioProcessor.apvts, rainCrossfadeParamID.getParamID());
+	rainLoopComponent.setGainAttachment(audioProcessor.apvts, rainGainParamID.getParamID());
+	rainLoopComponent.setPlayers(&audioProcessor.calmRainPlayer, &audioProcessor.midRainPlayer, &audioProcessor.heavyRainPlayer);
 
 	/*fileLoader.registerPlayer("Calm Wind", &audioProcessor.calmWindPlayer);
 	fileLoader.registerPlayer("Mid Wind", &audioProcessor.midWindPlayer);
@@ -55,43 +56,13 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 
 	addAndMakeVisible(audioProcessor.fileLoader);
 
-	// Setup Thunder trigger button
-	thunderTriggerButton.setButtonText("⚡ THUNDER ⚡");
-	thunderTriggerButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkblue);
-	thunderTriggerButton.setColour(juce::TextButton::textColourOffId, juce::Colours::yellow);
-	thunderTriggerButton.onClick = [this]() { triggerThunder(); };
-	addAndMakeVisible(thunderTriggerButton);
 
-	// Setup random trigger toggle
-	randomThunderToggle.setButtonText("Random Thunder");
-	randomThunderToggleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(
-		audioProcessor.apvts,
-		randomThunderToggleParamID.getParamID(),  
-		randomThunderToggle);
-	addAndMakeVisible(randomThunderToggle);
-
-	
-
-
-	
-
-	//Interval SLiders one shots
-
-	minIntervalSlider.setSliderStyle(juce::Slider::LinearHorizontal);
-	minIntervalSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
-	addAndMakeVisible(minIntervalSlider);
-
-	minIntervalAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-		audioProcessor.apvts, minIntervalThunderParamID.getParamID(), minIntervalSlider);
-
-	maxIntervalSlider.setSliderStyle(juce::Slider::LinearHorizontal);
-	maxIntervalSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
-	addAndMakeVisible(maxIntervalSlider);
-
-	maxIntervalAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-		audioProcessor.apvts, maxIntervalThunderParamID.getParamID(), maxIntervalSlider);
-
-
+	addAndMakeVisible(thunderComponent);
+	thunderComponent.setTriggerCallback([this]() { triggerThunder(); });
+	thunderComponent.setRandomToggleAttachment(audioProcessor.apvts, randomThunderToggleParamID.getParamID());
+	thunderComponent.setMinIntervalAttachment(audioProcessor.apvts, minIntervalThunderParamID.getParamID());
+	thunderComponent.setMaxIntervalAttachment(audioProcessor.apvts, maxIntervalThunderParamID.getParamID());
+	thunderComponent.setGainAttachment(audioProcessor.apvts, randomThunderGainParamID.getParamID());
 	//fireCrossfade.setPlayers(&audioProcessor.calmFirePlayer, &audioProcessor.strongFirePlayer);
 	//addAndMakeVisible(fireCrossfade);
 }
@@ -115,41 +86,71 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::paint(juce::Graphics& g)
 void WeatherAmbienceGeneratorAudioProcessorEditor::resized()
 {
 	auto area = getLocalBounds().reduced(20);
+	int totalHeight = area.getHeight();
+	int totalWidth = area.getWidth();
 
-	// Top section - file loader
-	auto topSection = area.removeFromTop(120);
-	audioProcessor.fileLoader.setBounds(topSection);
+	// Reserve top 10% for title space
+	int titleHeight = totalHeight * 0.10f;
+	auto titleArea = area.removeFromTop(titleHeight);
 
-	area.removeFromTop(10);
+	// Title label in the top section
+	titleLabel.setBounds(titleArea);
 
-	// Thunder section
-	auto thunderSection = area.removeFromTop(120);
-	thunderSection.removeFromLeft(20);
-	thunderSection.removeFromRight(20);
+	// Wind loop component at TOP LEFT
+	// Takes 1/5 of width (20%) and 40% of height (from 10% to 50% of screen)
+	int windWidth = totalWidth * 0.20f;
+	int windHeight = totalHeight * 0.40f;
+	auto windArea = area.removeFromLeft(windWidth).removeFromTop(windHeight);
+	windLoopComponent.setBounds(windArea);
+
+	// Rain loop component NEXT TO wind component
+	// Takes 1/5 of width (20%) and same height as wind (40%)
+	int rainWidth = totalWidth * 0.20f;
+	int rainHeight = totalHeight * 0.40f;
+	auto rainArea = area.removeFromLeft(rainWidth).removeFromTop(rainHeight);
+	rainLoopComponent.setBounds(rainArea);
+
+	// Thunder section BELOW wind slider on the left
+	// Takes 1/3 of width and centered between wind slider and file loader
+	int thunderWidth = totalWidth * 0.33f;
+	int thunderHeight = 180; // Fixed height with padding for future buttons
+
+	// Calculate the available space between wind slider and file loader
+	int fileLoaderHeight = totalHeight * 0.20f;
+	int spaceAboveFileLoader = totalHeight - windHeight - fileLoaderHeight - titleHeight;
+	int thunderTopPadding = (spaceAboveFileLoader - thunderHeight) / 2;
+
+	auto thunderArea = getLocalBounds().reduced(20);
+	thunderArea.removeFromTop(titleHeight + windHeight + thunderTopPadding); // Skip title, wind, and center vertically
+	thunderArea = thunderArea.removeFromLeft(thunderWidth).removeFromTop(thunderHeight);
 
 	// Manual trigger button
-	thunderTriggerButton.setBounds(thunderSection.removeFromTop(50));
-	thunderSection.removeFromTop(10);
+	thunderComponent.setBounds(thunderArea);
 
-	// Random thunder controls
-	auto randomSection = thunderSection.removeFromTop(60);
-	randomThunderToggle.setBounds(randomSection.removeFromTop(25));
-	randomSection.removeFromTop(5);
+	// Remaining space for future buttons (thunderArea has remaining height)
 
-	// Interval sliders
-	auto intervalRow = randomSection.removeFromTop(25);
-	minIntervalSlider.setBounds(intervalRow.removeFromLeft(intervalRow.getWidth() / 2).reduced(5));
-	maxIntervalSlider.setBounds(intervalRow.reduced(5));
+	// File loader at BOTTOM LEFT
+	// Takes 40% of width and 20% of height, positioned at bottom left (mirroring weather API)
+	int fileLoaderWidth = totalWidth * 0.40f;
 
-	area.removeFromTop(10);
+	auto fileLoaderArea = getLocalBounds().reduced(20);
+	fileLoaderArea.removeFromTop(totalHeight - fileLoaderHeight); // Position at bottom
+	fileLoaderArea = fileLoaderArea.removeFromLeft(fileLoaderWidth);
+	audioProcessor.fileLoader.setBounds(fileLoaderArea);
 
-	// Status label
-	statusLabel.setBounds(area.removeFromTop(100));
+	// Weather API section at BOTTOM RIGHT
+	// Takes 40% of width and 20% of height, positioned at bottom right
+	int weatherWidth = totalWidth * 0.40f;
+	int weatherHeight = totalHeight * 0.20f;
 
-	area.removeFromTop(10);
+	auto weatherArea = getLocalBounds().reduced(20);
+	weatherArea.removeFromTop(totalHeight - weatherHeight); // Position at bottom
+	weatherArea.removeFromLeft(totalWidth - weatherWidth); // Position at right
 
-	// Wind loop component at the BOTTOM
-	windLoopComponent.setBounds(area.removeFromLeft(150));
+
+
+
+	weatherFetcherComponent.setBounds(weatherArea);
 }
 
 void WeatherAmbienceGeneratorAudioProcessorEditor::triggerThunder()
@@ -159,41 +160,3 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::triggerThunder()
 
 
 
-void WeatherAmbienceGeneratorAudioProcessorEditor::onFetchButtonClicked()
-{
-	juce::String city = cityInput.getText();
-
-	if (city.isEmpty())
-	{
-		statusLabel.setText("Please enter a city name!", juce::dontSendNotification);
-		return;
-	}
-
-	statusLabel.setText("Fetching weather for " + city + "...", juce::dontSendNotification);
-
-	// Get weather manager from processor and fetch
-	auto* weatherManager = audioProcessor.getWeatherManager();
-
-	weatherManager->fetchWeather(city, [this](const WeatherManager::WeatherData& data)
-		{
-			onWeatherUpdate(data);
-		});
-}
-
-void WeatherAmbienceGeneratorAudioProcessorEditor::onWeatherUpdate(const WeatherManager::WeatherData& data)
-{
-	if (data.isValid)
-	{
-		juce::String weatherInfo = "Weather: " + data.condition + "\n";
-		weatherInfo += "Temp: " + juce::String(data.temperature, 1) + "°C\n";
-		weatherInfo += "Wind: " + juce::String(data.windSpeed, 1) + " m/s\n";
-		weatherInfo += "Humidity: " + juce::String(data.humidity) + "%\n";
-		weatherInfo += "Rain: " + juce::String(data.precipitation, 1) + " mm";
-
-		statusLabel.setText(weatherInfo, juce::dontSendNotification);
-	}
-	else
-	{
-		statusLabel.setText("Failed to fetch weather!", juce::dontSendNotification);
-	}
-}
