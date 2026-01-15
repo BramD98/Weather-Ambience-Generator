@@ -35,6 +35,11 @@ TriggerComponent::TriggerComponent(const juce::String& title)
     /// Setup trigger button - NO TEXT, just emoji
     triggerButton.setButtonText("Manual Trigger");
     triggerButton.setClickingTogglesState(false);
+    triggerButton.onClick = [this]() {
+        if (playerPtr != nullptr) {
+            playerPtr->trigger();
+        }
+        };
     addAndMakeVisible(triggerButton);
 
     // Setup random toggle
@@ -124,59 +129,75 @@ void TriggerComponent::paint(juce::Graphics& g)
 
 void TriggerComponent::resized()
 {
-    auto bounds = getLocalBounds().reduced(12);
+    auto bounds = getLocalBounds().reduced(10);
 
     // Skip title area
     bounds.removeFromTop(35);
-    bounds.removeFromTop(15);
+    bounds.removeFromTop(10);
 
-    // === MANUAL TRIGGER (small, centered) ===
-    {
-        auto triggerArea = bounds.removeFromTop(32);
-        triggerButton.setBounds(
-            triggerArea.withSizeKeepingCentre(140, 28)
-        );
-    }
+    // === VERTICAL SPLIT ===
+    auto leftArea = bounds.removeFromLeft(bounds.getWidth() / 2).reduced(6);
+    auto rightArea = bounds.reduced(6);
 
-    bounds.removeFromTop(14);
+    // ======================================================
+    // LEFT SIDE — RANDOM + INTERVALS
+    // ======================================================
 
-    // === RANDOM INTERVAL TOGGLE ===
-    {
-        auto toggleArea = bounds.removeFromTop(24);
-        randomToggle.setBounds(
-            toggleArea.withSizeKeepingCentre(160, 24)
-        );
-    }
+    const int rowHeight = 24;
+    const int rowSpacing = 8;
 
-    bounds.removeFromTop(8);
+    // Random toggle (centered horizontally)
+    auto randomSlot = leftArea.removeFromTop(rowHeight);
+    auto randomBounds = randomSlot.withSizeKeepingCentre(150, rowHeight);
+    randomToggle.setBounds(randomBounds);
 
-    // === INTERVAL CONTROLS (grouped row) ===
-    {
-        auto intervalRow = bounds.removeFromTop(26);
+    leftArea.removeFromTop(rowSpacing );
 
-        // Left: Min
-        auto minArea = intervalRow.removeFromLeft(intervalRow.getWidth() / 2).reduced(4, 0);
-        minIntervalLabel.setBounds(minArea.removeFromLeft(32));
-        minIntervalSlider.setBounds(minArea);
+    // Min interval
+    auto minArea = leftArea.removeFromTop(rowHeight);
+    minIntervalLabel.setBounds(minArea.removeFromLeft(32));
+    minIntervalSlider.setBounds(minArea);
 
-        // Right: Max
-        auto maxArea = intervalRow.reduced(4, 0);
-        maxIntervalLabel.setBounds(maxArea.removeFromLeft(32));
-        maxIntervalSlider.setBounds(maxArea);
-    }
+    leftArea.removeFromTop(rowSpacing);
 
-    bounds.removeFromTop(14);
+    // Max interval
+    auto maxArea = leftArea.removeFromTop(rowHeight);
+    maxIntervalLabel.setBounds(maxArea.removeFromLeft(32));
+    maxIntervalSlider.setBounds(maxArea);
 
-    // === GAIN CONTROL (centered) ===
-    {
-        auto gainArea = bounds.removeFromTop(70);
+    // ======================================================
+    // RIGHT SIDE — TRIGGER + GAIN (WITH GAP)
+    // ======================================================
 
-        auto sliderArea = gainArea.removeFromTop(52);
-        gainSlider.setBounds(
-            sliderArea.withSizeKeepingCentre(48, 48)
-        );
+    // Trigger button (smaller, centered)
+    auto triggerSlot = rightArea.removeFromTop(rightArea.getHeight() * 0.35f);
+    auto triggerBounds = triggerSlot.withSizeKeepingCentre(
+        juce::jmin(triggerSlot.getWidth(), 120),
+        32
+    );
+    triggerButton.setBounds(triggerBounds);
 
-        gainLabel.setBounds(gainArea);}
+    // Explicit gap between trigger and gain
+    rightArea.removeFromTop(10);
+
+    // Gain knob (slightly smaller)
+    auto gainArea = rightArea;
+
+    int knobSize = juce::jmin(
+        juce::jmax(gainArea.getWidth(), gainArea.getHeight()),
+        80   // reduced from 90
+    );
+
+    auto knobBounds = gainArea.withSizeKeepingCentre(knobSize, knobSize);
+    gainSlider.setBounds(knobBounds);
+
+    // Label under knob
+    gainLabel.setBounds(
+        knobBounds.getX(),
+        knobBounds.getBottom() + 6,
+        knobBounds.getWidth(),
+        16
+    );
 }
 
 void TriggerComponent::setTriggerCallback(std::function<void()> callback)
@@ -212,4 +233,9 @@ void TriggerComponent::setGainAttachment(juce::AudioProcessorValueTreeState& apv
 {
     gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, parameterID, gainSlider);
 
+}
+
+void TriggerComponent::setPlayer(AudioSamplePlayer* player)
+{
+    playerPtr = player;
 }

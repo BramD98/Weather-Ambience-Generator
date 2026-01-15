@@ -10,6 +10,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "AudioSamplePlayer.h"
 
 
 class TriggerComponent : public juce::Component
@@ -29,6 +30,7 @@ public:
     void setMinIntervalAttachment(juce::AudioProcessorValueTreeState& apvts, const juce::String& parameterID);
     void setMaxIntervalAttachment(juce::AudioProcessorValueTreeState& apvts, const juce::String& parameterID);
     void setGainAttachment(juce::AudioProcessorValueTreeState& apvts, const juce::String& parameterID);
+    void setPlayer(AudioSamplePlayer* player);
     // Set button background image
     void setButtonImage(const juce::Image& image);
 
@@ -36,6 +38,7 @@ public:
 
 private:
     juce::String componentTitle;
+    AudioSamplePlayer* playerPtr = nullptr;
 
     // UI Components
     juce::TextButton triggerButton;

@@ -6,6 +6,7 @@
   <MAINGROUP id="QSZ6pK" name="Weather Ambience Generator">
     <GROUP id="{A7E1660C-E0EC-12DF-F006-CBFF776DD3D7}" name="Resources">
       <FILE id="qsEqZh" name="ABOFont.ttf" compile="0" resource="1" file="Resources/ABOFont.ttf"/>
+      <FILE id="t9EEPA" name="Background.png" compile="0" resource="1" file="Resources/Background.png"/>
       <FILE id="NVfD3k" name="button_bg.png" compile="0" resource="1" file="Resources/button_bg.png"/>
       <FILE id="ZF8qKf" name="RotaryKnob.png" compile="0" resource="1" file="Resources/RotaryKnob.png"/>
       <FILE id="nBZF0r" name="RotaryRing.png" compile="0" resource="1" file="Resources/RotaryRing.png"/>

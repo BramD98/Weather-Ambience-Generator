@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    This file contains the basic framework code for a JUCE plugin editor.
+	This file contains the basic framework code for a JUCE plugin editor.
 
   ==============================================================================
 */
@@ -30,45 +30,40 @@
 //==============================================================================
 /**
 */
-class WeatherAmbienceGeneratorAudioProcessorEditor  : public juce::AudioProcessorEditor
+class WeatherAmbienceGeneratorAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
-    WeatherAmbienceGeneratorAudioProcessorEditor (WeatherAmbienceGeneratorAudioProcessor&);
-    ~WeatherAmbienceGeneratorAudioProcessorEditor() override;
+	WeatherAmbienceGeneratorAudioProcessorEditor(WeatherAmbienceGeneratorAudioProcessor&);
+	~WeatherAmbienceGeneratorAudioProcessorEditor() override;
 
-    //==============================================================================
-    void paint (juce::Graphics&) override;
-    void resized() override;
+	//==============================================================================
+	void paint(juce::Graphics&) override;
+	void resized() override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    WeatherAmbienceGeneratorAudioProcessor& audioProcessor;
-    
-    
-    juce::Label titleLabel;
+	// This reference is provided as a quick way for your editor to
+	// access the processor object that created it.
+	WeatherAmbienceGeneratorAudioProcessor& audioProcessor;
 
-    
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> randomThunderToggleAttachment;
-    //FileLoader fileLoader;
-   
-   
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> minIntervalAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> maxIntervalAttachment;
 
-    // Thunder methods
-    void triggerThunder();
-    void onFetchButtonClicked();
-    void onWeatherUpdate(const WeatherManager::WeatherData& data);
-    ArcticLookAndFeel mainLNF;
-    juce::Image rotaryKnobImg;
-    juce::Image rotaryRingImg;
-    juce::Image textBoxImg;
-    
-    LoopComponent windLoopComponent; 
-    LoopComponent rainLoopComponent;
-    TriggerComponent thunderComponent;
-    WeatherAPIComponent weatherFetcherComponent;
+	juce::Label titleLabel;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WeatherAmbienceGeneratorAudioProcessorEditor)
+	
+	ArcticLookAndFeel mainLNF;
+	juce::Image rotaryKnobImg;
+	juce::Image rotaryRingImg;
+	juce::Image textBoxImg;
+	juce::Image backgroundImg;
+
+	LoopComponent windLoopComponent;
+	LoopComponent rainLoopComponent;
+	LoopComponent fireLoopComponent;
+	LoopComponent cityLoopComponent;
+	LoopComponent waterLoopComponent;
+	TriggerComponent thunderComponent;
+	TriggerComponent earthquakeComponent;
+	TriggerComponent beastComponent;
+	WeatherAPIComponent weatherFetcherComponent;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WeatherAmbienceGeneratorAudioProcessorEditor)
 };

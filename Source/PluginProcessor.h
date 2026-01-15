@@ -77,10 +77,21 @@ public:
     AudioSamplePlayer heavyRainPlayer;
 
     AudioSamplePlayer calmFirePlayer;
-    AudioSamplePlayer strongFirePlayer;
+    AudioSamplePlayer midFirePlayer;
+    AudioSamplePlayer heavyFirePlayer;
+
+    AudioSamplePlayer calmCityPlayer;
+    AudioSamplePlayer midCityPlayer;
+    AudioSamplePlayer heavyCityPlayer;
+
+    AudioSamplePlayer calmWaterPlayer;
+    AudioSamplePlayer midWaterPlayer;
+    AudioSamplePlayer heavyWaterPlayer;
 
     //One Shots
     AudioSamplePlayer thunderPlayer;
+    AudioSamplePlayer earthquakePlayer;
+    AudioSamplePlayer beastPlayer;
     
     FileLoader fileLoader;
 
