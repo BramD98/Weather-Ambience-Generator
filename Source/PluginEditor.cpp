@@ -43,24 +43,23 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 	// Set attachments - what are your parameter IDs for wind intensity and gain?
 	windLoopComponent.setIntensityAttachment(audioProcessor.apvts, windCrossfadeParamID.getParamID());
 	windLoopComponent.setGainAttachment(audioProcessor.apvts, windGainParamID.getParamID());
-	windLoopComponent.setPlayers(&audioProcessor.calmWindPlayer, &audioProcessor.midWindPlayer,
-		&audioProcessor.strongWindPlayer);
+	
 
 	rainLoopComponent.setIntensityAttachment(audioProcessor.apvts, rainCrossfadeParamID.getParamID());
 	rainLoopComponent.setGainAttachment(audioProcessor.apvts, rainGainParamID.getParamID());
-	rainLoopComponent.setPlayers(&audioProcessor.calmRainPlayer, &audioProcessor.midRainPlayer, &audioProcessor.heavyRainPlayer);
+	
 
 	fireLoopComponent.setIntensityAttachment(audioProcessor.apvts, fireCrossfadeParamID.getParamID());
 	fireLoopComponent.setGainAttachment(audioProcessor.apvts, fireGainParamID.getParamID());
-	fireLoopComponent.setPlayers(&audioProcessor.calmFirePlayer, &audioProcessor.midFirePlayer, &audioProcessor.heavyFirePlayer);
+	
 
 	cityLoopComponent.setIntensityAttachment(audioProcessor.apvts, cityCrossfadeParamID.getParamID());
 	cityLoopComponent.setGainAttachment(audioProcessor.apvts, cityGainParamID.getParamID());
-	cityLoopComponent.setPlayers(&audioProcessor.calmCityPlayer, &audioProcessor.midCityPlayer, &audioProcessor.heavyCityPlayer);
+	
 
 	waterLoopComponent.setIntensityAttachment(audioProcessor.apvts, waterCrossfadeParamID.getParamID());
 	waterLoopComponent.setGainAttachment(audioProcessor.apvts, waterGainParamID.getParamID());
-	waterLoopComponent.setPlayers(&audioProcessor.calmWaterPlayer, &audioProcessor.midWaterPlayer, &audioProcessor.heavyWaterPlayer);
+	
 
 	
 

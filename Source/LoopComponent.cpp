@@ -21,7 +21,6 @@ LoopComponent::LoopComponent(const juce::String& title)
     // Intensity slider (vertical) - range 0-2 for three-way crossfade
     intensityControl.getSlider().setRange(0.0, 2.0, 0.01);
     intensityControl.getSlider().setValue(1.0);
-    intensityControl.getSlider().onValueChange = [this]() { onIntensityChanged(); };
     addAndMakeVisible(intensityControl);
 
     // Gain slider (rotary)
@@ -29,7 +28,6 @@ LoopComponent::LoopComponent(const juce::String& title)
     gainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
     gainSlider.setRange(-60.0, 0.0, 0.1);  // dB range
     gainSlider.setValue(-12.0);
-    gainSlider.onValueChange = [this]() { onGainChanged(); };
     addAndMakeVisible(gainSlider);
 
     // Gain label
@@ -224,12 +222,7 @@ void LoopComponent::resized()
 }
 
 
-void LoopComponent::setPlayers(AudioSamplePlayer* calmPlayer,
-    AudioSamplePlayer* mediumPlayer,
-    AudioSamplePlayer* strongPlayer)
-{
-    crossfadeLogic.setPlayers(calmPlayer, mediumPlayer, strongPlayer);
-}
+
 
 void LoopComponent::setIntensityAttachment(juce::AudioProcessorValueTreeState& apvts, const juce::String& parameterID)
 {
@@ -241,17 +234,4 @@ void LoopComponent::setGainAttachment(juce::AudioProcessorValueTreeState& apvts,
 {
     gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
         apvts, parameterID, gainSlider);
-}
-
-void LoopComponent::onIntensityChanged()
-{
-    float value = static_cast<float>(intensityControl.getSlider().getValue());
-    crossfadeLogic.setCrossfadeValue(value);
-}
-
-void LoopComponent::onGainChanged()
-{
-    float gainDB = static_cast<float>(gainSlider.getValue());
-    float linearGain = juce::Decibels::decibelsToGain(gainDB);
-    crossfadeLogic.setMasterGain(linearGain);
 }

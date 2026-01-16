@@ -102,6 +102,12 @@ void WeatherAmbienceGeneratorAudioProcessor::prepareToPlay(double sampleRate, in
 
 	fileLoader.setSampleRate(sampleRate);
 	PrepareSamplePlayers(sampleRate,samplesPerBlock);
+
+	windCrossfade.setPlayers(&calmWindPlayer, &midWindPlayer, &strongWindPlayer);
+	rainCrossfade.setPlayers(&calmRainPlayer, &midRainPlayer, &heavyRainPlayer);
+	fireCrossfade.setPlayers(&calmFirePlayer, &midFirePlayer, &heavyFirePlayer);
+	cityCrossfade.setPlayers(&calmCityPlayer, &midCityPlayer, &heavyCityPlayer);
+	waterCrossfade.setPlayers(&calmWaterPlayer, &midWaterPlayer, &heavyWaterPlayer);
 	
 }
 
@@ -148,6 +154,42 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 		buffer.clear(i, 0, buffer.getNumSamples());
 
 	params.update();
+	windCrossfade.setMasterGain(params.windGain);
+	windCrossfade.setCrossfadeValue(params.windCrossfade);
+	windCrossfade.applyGains();  // Apply to the 3 wind players
+
+	// Rain
+	rainCrossfade.setMasterGain(params.rainGain);
+	rainCrossfade.setCrossfadeValue(params.rainCrossfade);
+	rainCrossfade.applyGains();
+
+	// Fire
+	fireCrossfade.setMasterGain(params.fireGain);
+	fireCrossfade.setCrossfadeValue(params.fireCrossfade);
+	fireCrossfade.applyGains();
+
+	// City
+	cityCrossfade.setMasterGain(params.cityCrossfade);
+	cityCrossfade.setCrossfadeValue(params.cityCrossfade);
+	cityCrossfade.applyGains();
+
+	// Water
+	waterCrossfade.setMasterGain(params.waterGain);
+	waterCrossfade.setCrossfadeValue(params.waterCrossfade);
+	waterCrossfade.applyGains();
+
+
+	thunderPlayer.setRandomTriggerEnabled(params.randomThunderToggle);
+	thunderPlayer.setRandomTriggerInterval(params.minIntThunder, params.maxIntThunder);
+	thunderPlayer.setGain(params.randomThunderGain);
+
+	earthquakePlayer.setRandomTriggerEnabled(params.randomEarthquakeToggle);
+	earthquakePlayer.setRandomTriggerInterval(params.minIntEarthquake, params.maxIntEarthquake);
+	earthquakePlayer.setGain(params.randomEarthquakeGain);
+
+	beastPlayer.setRandomTriggerEnabled(params.randomBeastToggle);
+	beastPlayer.setRandomTriggerInterval(params.minIntBeast, params.maxIntBeast);
+	beastPlayer.setGain(params.randomBeastGain);
 	
 	for (int channel = 0; channel < totalNumInputChannels; ++channel)
 	{
@@ -163,17 +205,8 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 	{
 		//DBG("windGain: " << params.windGain);
 	}
-	thunderPlayer.setRandomTriggerEnabled(params.randomThunderToggle);
-	thunderPlayer.setRandomTriggerInterval(params.minIntThunder, params.maxIntThunder);
-	thunderPlayer.setGain(params.randomThunderGain);
 
-	earthquakePlayer.setRandomTriggerEnabled(params.randomEarthquakeToggle);
-	earthquakePlayer.setRandomTriggerInterval(params.minIntEarthquake, params.maxIntEarthquake);
-	earthquakePlayer.setGain(params.randomEarthquakeGain);
-
-	beastPlayer.setRandomTriggerEnabled(params.randomBeastToggle);
-	beastPlayer.setRandomTriggerInterval(params.minIntBeast, params.maxIntBeast);
-	beastPlayer.setGain(params.randomBeastGain);
+	
 
 	
 	

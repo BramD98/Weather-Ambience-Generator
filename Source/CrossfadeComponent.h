@@ -15,9 +15,9 @@ public:
     ~CrossfadeComponent();
 
     // Set the three players
-    void setPlayers(AudioSamplePlayer* playerA_ptr,
-        AudioSamplePlayer* playerB_ptr,
-        AudioSamplePlayer* playerC_ptr);
+    void setPlayers(    AudioSamplePlayer* playerA_ptr,
+                        AudioSamplePlayer* playerB_ptr,
+                        AudioSamplePlayer* playerC_ptr);
 
     // Set crossfade value (0.0 to 2.0)
     void setCrossfadeValue(float value);
@@ -31,13 +31,15 @@ public:
     // Get master gain
     float getMasterGain() const;
 
+    void applyGains();
+
 private:
     AudioSamplePlayer* playerA = nullptr;
     AudioSamplePlayer* playerB = nullptr;
     AudioSamplePlayer* playerC = nullptr;
 
-    float crossfadeValue = 0.0f;
+    std::atomic<float> crossfadeValue{ 0.0f };
     std::atomic<float> masterGain{ 1.0f };
 
-    void updatePlayerGains();
+    //void updatePlayerGains();
 };

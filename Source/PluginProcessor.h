@@ -16,6 +16,7 @@
 #include "WeatherManager.h"
 #include "AudioSamplePlayer.h"
 #include "FileLoader.h"
+#include "CrossfadeComponent.h"
 
 
 
@@ -92,6 +93,12 @@ public:
     AudioSamplePlayer thunderPlayer;
     AudioSamplePlayer earthquakePlayer;
     AudioSamplePlayer beastPlayer;
+
+    CrossfadeComponent windCrossfade;
+    CrossfadeComponent rainCrossfade;
+    CrossfadeComponent fireCrossfade;
+    CrossfadeComponent cityCrossfade;
+    CrossfadeComponent waterCrossfade;
     
     FileLoader fileLoader;
 

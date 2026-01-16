@@ -26,24 +26,100 @@ FileLoader::~FileLoader()
 
 void FileLoader::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::darkgrey.darker());
+    auto bounds = getLocalBounds().toFloat();
 
+    // === OUTER SHADOW ===
+    juce::Path outerPath;
+    outerPath.addRoundedRectangle(bounds, 8.0f);
+
+    juce::DropShadow shadow(
+        juce::Colour(0xFF000000).withAlpha(0.6f),
+        8,
+        { 0, 2 }
+    );
+    shadow.drawForPath(g, outerPath);
+
+    // === MAIN BACKGROUND GRADIENT ===
+    juce::ColourGradient bg(
+        juce::Colour(0xFF1A1A2E), bounds.getX(), bounds.getY(),
+        juce::Colour(0xFF16213E), bounds.getX(), bounds.getBottom(),
+        false
+    );
+    g.setGradientFill(bg);
+    g.fillRoundedRectangle(bounds, 8.0f);
+
+    // === INNER CYAN GLOW ===
+    juce::ColourGradient innerGlow(
+        juce::Colour(0xFF4FCFFF).withAlpha(0.15f),
+        bounds.getCentreX(), bounds.getY(),
+        juce::Colours::transparentBlack,
+        bounds.getCentreX(), bounds.getY() + 60.0f,
+        false
+    );
+    g.setGradientFill(innerGlow);
+    g.fillRoundedRectangle(bounds.reduced(1.0f), 7.0f);
+
+    // === GLASS REFLECTION ===
+    auto reflectionArea = bounds
+        .removeFromTop(bounds.getHeight() * 0.3f)
+        .reduced(8.0f, 4.0f);
+
+    juce::ColourGradient reflection(
+        juce::Colours::white.withAlpha(0.1f),
+        reflectionArea.getCentreX(), reflectionArea.getY(),
+        juce::Colours::transparentWhite,
+        reflectionArea.getCentreX(), reflectionArea.getBottom(),
+        false
+    );
+    g.setGradientFill(reflection);
+    g.fillRoundedRectangle(reflectionArea, 4.0f);
+
+    // === TITLE ===
     g.setColour(juce::Colours::white);
-    g.drawRect(getLocalBounds(), 1);
+    g.setFont(juce::Font(20.0f, juce::Font::bold));
 
-    g.setFont(14.0f);
-    g.drawText("Sample Library", getLocalBounds().removeFromTop(25),
-        juce::Justification::centred);
+    auto titleBounds = getLocalBounds().removeFromTop(35).reduced(5);
+    g.drawText("Sample Loader", titleBounds, juce::Justification::centred);
+
+    // === BLUE UNDERLINE ===
+    g.setColour(juce::Colour(0xFF6FCFFF).withAlpha(0.6f));
+    float lineY = titleBounds.getBottom() + 5.0f;
+    g.drawLine(
+        titleBounds.getX() + 10.0f,
+        lineY,
+        titleBounds.getRight() - 10.0f,
+        lineY,
+        2.0f
+    );
 }
 
 void FileLoader::resized()
 {
-    auto area = getLocalBounds().reduced(10);
-    area.removeFromTop(30); // Space for title
+    auto bounds = getLocalBounds().reduced(10);
 
-    loadFilesButton.setBounds(area.removeFromTop(35));
-    area.removeFromTop(10);
-    statusLabel.setBounds(area.removeFromTop(25));
+    // Space for title
+    const int titleHeight = 35;
+    bounds.removeFromTop(titleHeight + 6);
+
+    // Split layout
+    const int controlWidth = juce::jlimit(140, 180, bounds.getWidth() / 3);
+    auto controlArea = bounds.removeFromLeft(controlWidth);
+    auto statusArea = bounds;
+
+    // === LEFT COLUMN ===
+    const int buttonHeight = 30;
+    const int gap = (controlArea.getHeight() - buttonHeight) / 2;
+
+    loadFilesButton.setBounds(
+        controlArea.getX() + 4,
+        controlArea.getY() + gap,
+        controlArea.getWidth() - 8,
+        buttonHeight
+    );
+
+    // === RIGHT COLUMN ===
+    statusLabel.setBounds(statusArea.reduced(6));
+    statusLabel.setJustificationType(juce::Justification::centred);
 }
 
 void FileLoader::registerPlayer(const juce::String& name, AudioSamplePlayer* player)
