@@ -10,10 +10,19 @@
       <FILE id="xKmrDA" name="Background_Test.png" compile="0" resource="1"
             file="Resources/Background_Test.png"/>
       <FILE id="NVfD3k" name="button_bg.png" compile="0" resource="1" file="Resources/button_bg.png"/>
+      <FILE id="ZGEt9E" name="gotham_black.otf" compile="0" resource="1"
+            file="Resources/gotham_black.otf"/>
+      <FILE id="vjgFUZ" name="GOTHAM_LIGHT.OTF" compile="0" resource="1"
+            file="Resources/GOTHAM_LIGHT.OTF"/>
+      <FILE id="RetvYC" name="GOTHAM_MEDIUM.OTF" compile="0" resource="1"
+            file="Resources/GOTHAM_MEDIUM.OTF"/>
       <FILE id="ZF8qKf" name="RotaryKnob.png" compile="0" resource="1" file="Resources/RotaryKnob.png"/>
       <FILE id="nBZF0r" name="RotaryRing.png" compile="0" resource="1" file="Resources/RotaryRing.png"/>
       <FILE id="d7Vxar" name="textBoxImg.png" compile="0" resource="1" file="Resources/textBoxImg.png"/>
       <FILE id="TMmqZs" name="Wind_Calm.wav" compile="0" resource="1" file="../SFX/Wind_Calm.wav"/>
+      <FILE id="oPRn5O" name="Window_Closed.png" compile="0" resource="1"
+            file="Resources/Window_Closed.png"/>
+      <FILE id="Ah6U5F" name="Window_Open.png" compile="0" resource="1" file="Resources/Window_Open.png"/>
     </GROUP>
     <GROUP id="{895E372E-150C-B568-26E5-306235988641}" name="Source">
       <FILE id="aRDYWI" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -46,6 +55,10 @@
         <FILE id="fHNmpP" name="Parameters.h" compile="0" resource="0" file="Source/Parameters.h"/>
       </GROUP>
       <GROUP id="{3344051A-DA9C-134A-EFFF-A5A7582448AD}" name="API">
+        <FILE id="IDjYrE" name="WeatherAudioMapper.cpp" compile="1" resource="0"
+              file="Source/WeatherAudioMapper.cpp"/>
+        <FILE id="qXuaxX" name="WeatherAudioMapper.h" compile="0" resource="0"
+              file="Source/WeatherAudioMapper.h"/>
         <FILE id="pzxIww" name="WeatherManager.h" compile="0" resource="0"
               file="Source/WeatherManager.h"/>
         <FILE id="ei5h27" name="WeatherFetcher.h" compile="0" resource="0"
@@ -65,6 +78,10 @@
               file="Source/RotarySliderALNF.cpp"/>
         <FILE id="h4ghHz" name="RotarySliderALNF.h" compile="0" resource="0"
               file="Source/RotarySliderALNF.h"/>
+        <FILE id="WzewTG" name="ToggleButtonALNF.cpp" compile="1" resource="0"
+              file="Source/ToggleButtonALNF.cpp"/>
+        <FILE id="VNSOiw" name="ToggleButtonALNF.h" compile="0" resource="0"
+              file="Source/ToggleButtonALNF.h"/>
         <FILE id="hwAbsQ" name="TriggerComponent.cpp" compile="1" resource="0"
               file="Source/TriggerComponent.cpp"/>
         <FILE id="I4zsKY" name="TriggerComponent.h" compile="0" resource="0"
@@ -92,6 +109,7 @@
     <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
@@ -118,6 +136,7 @@
         <MODULEPATH id="juce_graphics" path="../../../../../JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="../../../../../JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../../../JUCE/modules"/>
       </MODULEPATHS>
     </VS2022>
   </EXPORTFORMATS>

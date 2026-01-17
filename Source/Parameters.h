@@ -35,6 +35,8 @@ const juce::ParameterID minIntervalBeastParamID{ "minIntervalBeast" , 1 };
 const juce::ParameterID maxIntervalBeastParamID{ "maxIntervaBeast" , 1 };
 const juce::ParameterID randomBeastGainParamID{ "randomBeastGain",1 };
 
+const juce::ParameterID lowpassToggleParamID{ "lowpasToggleParamID",1 };
+
 
 
 class Parameters {
@@ -72,6 +74,8 @@ public:
     float minIntBeast = 0.0f;
     float maxIntBeast = 0.0f;
     float randomBeastGain = 0.0f;
+
+    bool lowpassToggle = false;
 
 private:
     //Loops
@@ -128,5 +132,5 @@ private:
     juce::AudioParameterFloat* maxIntervalBeastParam;
     juce::LinearSmoothedValue<float> maxIntervalBeastSmoother;
 
-   
+    juce::AudioParameterBool* lowpassToggleParam;
 };

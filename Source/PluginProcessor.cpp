@@ -25,7 +25,7 @@ WeatherAmbienceGeneratorAudioProcessor::WeatherAmbienceGeneratorAudioProcessor()
 {
 	weatherManager = std::make_unique<WeatherManager>(m_apiKey);
 	FileLoaderRegisterPlayers();
-	
+	lowPassFilter.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
 }
 
 WeatherAmbienceGeneratorAudioProcessor::~WeatherAmbienceGeneratorAudioProcessor()
@@ -108,6 +108,17 @@ void WeatherAmbienceGeneratorAudioProcessor::prepareToPlay(double sampleRate, in
 	fireCrossfade.setPlayers(&calmFirePlayer, &midFirePlayer, &heavyFirePlayer);
 	cityCrossfade.setPlayers(&calmCityPlayer, &midCityPlayer, &heavyCityPlayer);
 	waterCrossfade.setPlayers(&calmWaterPlayer, &midWaterPlayer, &heavyWaterPlayer);
+
+	juce::dsp::ProcessSpec spec;
+	spec.sampleRate = sampleRate;
+	spec.maximumBlockSize = juce::uint32(samplesPerBlock);
+	spec.numChannels = 2;
+	lowPassFilter.reset();
+	lowPassFilter.prepare(spec);
+	lowPassFilter.setCutoffFrequency(lowpassCutoffFreq);
+	limiter.setThreshold(0.0f);
+	limiter.setRelease(50.0f);
+	limiter.prepare(spec);
 	
 }
 
@@ -154,30 +165,52 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 		buffer.clear(i, 0, buffer.getNumSamples());
 
 	params.update();
-	windCrossfade.setMasterGain(params.windGain);
-	windCrossfade.setCrossfadeValue(params.windCrossfade);
-	windCrossfade.applyGains();  // Apply to the 3 wind players
+	
 
-	// Rain
-	rainCrossfade.setMasterGain(params.rainGain);
-	rainCrossfade.setCrossfadeValue(params.rainCrossfade);
+	// Weather control override
+	if (weatherControlEnabled.load())
+	{
+		
+
+		WeatherAudioMapper::AudioParameters currentWeatherParams;
+		{
+			juce::SpinLock::ScopedLockType lock(weatherParamsLock);
+			currentWeatherParams = weatherParams;
+		}
+
+		// Use weather data
+		windCrossfade.setMasterGain(currentWeatherParams.windGain);
+		windCrossfade.setCrossfadeValue(currentWeatherParams.windIntensity);
+
+		rainCrossfade.setMasterGain(currentWeatherParams.rainGain);
+		rainCrossfade.setCrossfadeValue(currentWeatherParams.rainIntensity);
+	}
+	else
+	{
+
+		// Use manual controls
+		windCrossfade.setMasterGain(params.windGain);
+		windCrossfade.setCrossfadeValue(params.windCrossfade);
+
+		rainCrossfade.setMasterGain(params.rainGain);
+		rainCrossfade.setCrossfadeValue(params.rainCrossfade);
+	}
+
+	windCrossfade.applyGains();
 	rainCrossfade.applyGains();
 
-	// Fire
+	// Rest stays the same - no weather control for these
 	fireCrossfade.setMasterGain(params.fireGain);
 	fireCrossfade.setCrossfadeValue(params.fireCrossfade);
 	fireCrossfade.applyGains();
 
-	// City
-	cityCrossfade.setMasterGain(params.cityCrossfade);
+	cityCrossfade.setMasterGain(params.cityGain);
 	cityCrossfade.setCrossfadeValue(params.cityCrossfade);
 	cityCrossfade.applyGains();
 
-	// Water
 	waterCrossfade.setMasterGain(params.waterGain);
 	waterCrossfade.setCrossfadeValue(params.waterCrossfade);
 	waterCrossfade.applyGains();
-
 
 	thunderPlayer.setRandomTriggerEnabled(params.randomThunderToggle);
 	thunderPlayer.setRandomTriggerInterval(params.minIntThunder, params.maxIntThunder);
@@ -190,28 +223,36 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 	beastPlayer.setRandomTriggerEnabled(params.randomBeastToggle);
 	beastPlayer.setRandomTriggerInterval(params.minIntBeast, params.maxIntBeast);
 	beastPlayer.setGain(params.randomBeastGain);
-	
+
 	for (int channel = 0; channel < totalNumInputChannels; ++channel)
 	{
 		auto* channelData = buffer.getWritePointer(channel);
-
 		for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
 		{
 			params.smoothen();
 		}
 	}
-	static int counter = 0;
-	if (++counter % 100 == 0)  // Print every 100 blocks to avoid spam
+
+	ProcessSamplePlayers(buffer);
+
+	float compensation = calculateSmartGainCompensation();
+	if (compensation < 1.0f)
 	{
-		//DBG("windGain: " << params.windGain);
+		buffer.applyGain(compensation);
 	}
-
-	
-
-	
-	
-	ProcessSamplePlayers(buffer); //Puts samples of all sampleplayers on the buffer
+	juce::dsp::AudioBlock<float> block(buffer);
+	// 3. Create a ProcessContext
+	juce::dsp::ProcessContextReplacing<float> context(block);
+	if (params.lowpassToggle)
+	{
+		// 4. Update the frequency (in case it changed) and process
+		lowPassFilter.setCutoffFrequency(lowpassCutoffFreq); // Use your param value here
+		lowPassFilter.process(context);
+	}
+	limiter.process(context);
 	protectYourEars(buffer);
+
+	
 }
 
 //==============================================================================
@@ -406,9 +447,84 @@ void WeatherAmbienceGeneratorAudioProcessor::ProcessSamplePlayers(juce::AudioBuf
 	beastPlayer.passSampleToBuffer(buffer, 0, buffer.getNumSamples());
 }
 
+
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
 	return new WeatherAmbienceGeneratorAudioProcessor();
+}
+
+void WeatherAmbienceGeneratorAudioProcessor::updateWeatherParameters(const WeatherFetcher::WeatherData& data)
+{
+	DBG("=== updateWeatherParameters called ===");
+
+	if (!data.isValid)
+	{
+		DBG("ERROR: Data is invalid!");
+		return;
+	}
+
+	
+	auto audioParams = weatherMapper.mapWeatherToAudio(data);
+	// Convert linear gain (0-1) to decibels for the gain parameters
+	float windGainDB = juce::Decibels::gainToDecibels(audioParams.windGain, -80.0f);
+	float rainGainDB = juce::Decibels::gainToDecibels(audioParams.rainGain, -80.0f);
+
+
+	// Update APVTS parameters directly (this is called from message thread, so it's safe)
+	auto* windCrossfadeParam = apvts.getParameter(windCrossfadeParamID.getParamID());
+	auto* windGainParam = apvts.getParameter(windGainParamID.getParamID());
+	auto* rainCrossfadeParam = apvts.getParameter(rainCrossfadeParamID.getParamID());
+	auto* rainGainParam = apvts.getParameter(rainGainParamID.getParamID());
+
+	if (windCrossfadeParam && windGainParam && rainCrossfadeParam && rainGainParam)
+	{
+		// Crossfade: 0-2 range, needs to be normalized to 0-1 for APVTS
+		float normalizedWindCrossfade = audioParams.windIntensity / 2.0f;
+		float normalizedRainCrossfade = audioParams.rainIntensity / 2.0f;
+
+		// Gain: convert dB to normalized range (-80 to 24 dB)
+		// Using the NormalisableRange from your parameter layout
+		juce::NormalisableRange<float> gainRange{ -80.0f, 24.0f, 0.1f, 2.65f };
+		float normalizedWindGain = gainRange.convertTo0to1(windGainDB);
+		float normalizedRainGain = gainRange.convertTo0to1(rainGainDB);
+
+
+		// Set the values
+		windCrossfadeParam->setValueNotifyingHost(normalizedWindCrossfade);
+		windGainParam->setValueNotifyingHost(normalizedWindGain);
+		rainCrossfadeParam->setValueNotifyingHost(normalizedRainCrossfade);
+		rainGainParam->setValueNotifyingHost(normalizedRainGain);
+
+		
+	}
+	else
+	{
+		DBG("ERROR: Could not get parameters!");
+	}
+}
+
+float WeatherAmbienceGeneratorAudioProcessor::calculateSmartGainCompensation()
+{
+	// Count how many crossfades are significantly active (above -40 dB)
+	int activeCount = 0;
+	const float activeThreshold = -40.0f; // dB
+
+	if (params.windGain > activeThreshold) activeCount++;
+	if (params.rainGain > activeThreshold) activeCount++;
+	if (params.fireGain > activeThreshold) activeCount++;
+	if (params.cityGain > activeThreshold) activeCount++;
+	if (params.waterGain > activeThreshold) activeCount++;
+
+	// Only apply compensation if 3 or more are active
+	if (activeCount >= 3)
+	{
+		// Gentle reduction: -3 dB for 3 elements, -4.5 dB for 4, -6 dB for 5
+		float compensationDb = -1.5f * (activeCount - 2);
+		return juce::Decibels::decibelsToGain(compensationDb);
+	}
+
+	return 1.0f; // No compensation needed
 }

@@ -50,6 +50,8 @@ Parameters::Parameters(juce::AudioProcessorValueTreeState& apvts)
 	castParameter(apvts, maxIntervalBeastParamID, maxIntervalBeastParam);
 	castParameter(apvts, randomBeastGainParamID, randomBeastGainParam);
 
+	castParameter(apvts, lowpassToggleParamID, lowpassToggleParam);
+
 
 }
 juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterLayout()
@@ -57,12 +59,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
 
 	juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
+	layout.add(std::make_unique<juce::AudioParameterBool>(lowpassToggleParamID, "lowpassToggle", false));
+
 	//Loops 
 
 	layout.add(std::make_unique<juce::AudioParameterFloat>(
 		windGainParamID.getParamID(), "windGain",
-		juce::NormalisableRange<float>{ -24.f, 24.f, 0.1f, 1.0f},
-		0.0f));
+		juce::NormalisableRange<float>{ -80.0f, 24.f, 0.1f, 2.65f},
+		-80.0f));
 
 	layout.add(std::make_unique<juce::AudioParameterFloat>(
 		windCrossfadeParamID.getParamID(), "windCrossfade",
@@ -70,8 +74,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
 		0.0f));
 	layout.add(std::make_unique<juce::AudioParameterFloat>(
 		rainGainParamID.getParamID(), "rainGain",
-		juce::NormalisableRange<float>{ -24.f, 24.f, 0.1f, 1.0f},
-		0.0f));
+		juce::NormalisableRange<float>{ -80.0f, 24.f, 0.1f, 2.65f},
+		-80.0f));
 
 	layout.add(std::make_unique<juce::AudioParameterFloat>(
 		rainCrossfadeParamID.getParamID(), "rainCrossfade",
@@ -79,8 +83,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
 		0.0f));
 	layout.add(std::make_unique<juce::AudioParameterFloat>(
 		fireGainParamID.getParamID(), "fireGain",
-		juce::NormalisableRange<float>{ -24.f, 24.f, 0.1f, 1.0f},
-		0.0f));
+		juce::NormalisableRange<float>{ -80.0f, 24.f, 0.1f, 2.65f},
+		-80.0f));
 
 	layout.add(std::make_unique<juce::AudioParameterFloat>(
 		fireCrossfadeParamID.getParamID(), "fireCrossfade",
@@ -89,8 +93,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
 
 	layout.add(std::make_unique<juce::AudioParameterFloat>(
 		cityGainParamID.getParamID(), "cityGain",
-		juce::NormalisableRange<float>{ -24.f, 24.f, 0.1f, 1.0f},
-		0.0f));
+		juce::NormalisableRange<float>{ -80.0f, 24.f, 0.1f, 2.65f},
+		-80.0f));
 
 	layout.add(std::make_unique<juce::AudioParameterFloat>(
 		cityCrossfadeParamID.getParamID(), "cityCrossfade",
@@ -99,8 +103,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
 
 	layout.add(std::make_unique<juce::AudioParameterFloat>(
 		waterGainParamID.getParamID(), "waterGain",
-		juce::NormalisableRange<float>{ -24.f, 24.f, 0.1f, 1.0f},
-		0.0f));
+		juce::NormalisableRange<float>{ -80.0f, 24.f, 0.1f, 2.65f},
+		-80.0f));
 
 	layout.add(std::make_unique<juce::AudioParameterFloat>(
 		waterCrossfadeParamID.getParamID(), "waterCrossfade",
@@ -190,6 +194,7 @@ void Parameters::prepareToPlay(double sampleRate) noexcept
 	randomThunderGainSmoother.reset(sampleRate, duration);
 	randomEarthquakeGainSmoother.reset(sampleRate, duration);
 	randomBeastGainSmoother.reset(sampleRate, duration);
+
 
 }
 
@@ -286,6 +291,8 @@ void Parameters::update() noexcept
 	minIntBeast = minIntervalBeastParam->get();
 	maxIntBeast = maxIntervalBeastParam->get();
 	randomBeastGainSmoother.setTargetValue(juce::Decibels::decibelsToGain(randomBeastGainParam->get()));
+
+	lowpassToggle = lowpassToggleParam->get();
 }
 
 

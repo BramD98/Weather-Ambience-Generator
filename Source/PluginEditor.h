@@ -21,6 +21,7 @@
 #include "LoopComponent.h"
 #include "TriggerComponent.h"
 #include "WeatherAPIComponent.h"
+#include "ToggleButtonALNF.h"
 
 
 #ifdef _MSC_VER
@@ -54,6 +55,10 @@ private:
 	juce::Image rotaryRingImg;
 	juce::Image textBoxImg;
 	juce::Image backgroundImg;
+
+	juce::Image closedWindowImg;
+	juce::Image openWindowImg;
+	ToggleButtonArcticLookAndFeel insideToggle;
 
 	LoopComponent windLoopComponent;
 	LoopComponent rainLoopComponent;

@@ -19,8 +19,12 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 	rotaryKnobImg = juce::ImageFileFormat::loadFrom(BinaryData::RotaryKnob_png, BinaryData::RotaryKnob_pngSize);
 	textBoxImg = juce::ImageFileFormat::loadFrom(BinaryData::textBoxImg_png, BinaryData::textBoxImg_pngSize);
 	backgroundImg = juce::ImageFileFormat::loadFrom(BinaryData::Background_png, BinaryData::Background_pngSize);
+	openWindowImg = juce::ImageFileFormat::loadFrom(BinaryData::Window_Open_png, BinaryData::Window_Open_pngSize);
+	closedWindowImg = juce::ImageFileFormat::loadFrom(BinaryData::Window_Closed_png, BinaryData::Window_Closed_pngSize);
 	mainLNF.setRotaryKnobImages(rotaryRingImg, rotaryKnobImg, textBoxImg);
+	insideToggle.setImages(openWindowImg, closedWindowImg);
 	setLookAndFeel(&mainLNF);
+	
 	setSize(1200, 800);
 
 	//// Title setup
@@ -31,8 +35,13 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 	//addAndMakeVisible(titleLabel);
 	
 	//Weather Fetcher
+	weatherFetcherComponent.setLookAndFeel(&mainLNF);
 	addAndMakeVisible(weatherFetcherComponent);
 	weatherFetcherComponent.setWeatherManager(audioProcessor.getWeatherManager());
+	weatherFetcherComponent.onWeatherFetched = [this](const WeatherManager::WeatherData& data)
+		{
+			audioProcessor.updateWeatherParameters(data);
+		};
 
 	addAndMakeVisible(windLoopComponent);
 	addAndMakeVisible(rainLoopComponent);
@@ -62,7 +71,7 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 	
 
 	
-
+	audioProcessor.fileLoader.setLookAndFeel(&mainLNF);
 	addAndMakeVisible(audioProcessor.fileLoader);
 
 
@@ -87,11 +96,16 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 	beastComponent.setMaxIntervalAttachment(audioProcessor.apvts, maxIntervalBeastParamID.getParamID());
 	beastComponent.setGainAttachment(audioProcessor.apvts, randomBeastGainParamID.getParamID());
 	
+	insideToggle.attachToParameter(audioProcessor.apvts, lowpassToggleParamID.getParamID());
+	addAndMakeVisible(insideToggle);
+	
 }
 
 WeatherAmbienceGeneratorAudioProcessorEditor::~WeatherAmbienceGeneratorAudioProcessorEditor()
 {
 	setLookAndFeel(nullptr);
+	audioProcessor.fileLoader.setLookAndFeel(nullptr);
+	weatherFetcherComponent.setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -181,17 +195,34 @@ void WeatherAmbienceGeneratorAudioProcessorEditor::resized()
 		triggerArea.removeFromLeft(triggerWidth).removeFromTop(triggerHeight)
 	);
 
-	// ================= FILE LOADER (BOTTOM LEFT) =================
-	auto fileLoaderArea = getLocalBounds().reduced(20);
-	fileLoaderArea.removeFromTop(totalHeight - fileLoaderHeight);
-	fileLoaderArea = fileLoaderArea.removeFromLeft(totalWidth * 0.40f);
-	audioProcessor.fileLoader.setBounds(fileLoaderArea);
+	auto bottomArea = getLocalBounds().reduced(20);
+	bottomArea.removeFromTop(totalHeight - fileLoaderHeight);
 
-	// ================= WEATHER FETCHER (BOTTOM RIGHT) =================
-	auto weatherArea = getLocalBounds().reduced(20);
-	weatherArea.removeFromTop(totalHeight - fileLoaderHeight);
-	weatherArea.removeFromLeft(totalWidth * 0.60f);
-	weatherFetcherComponent.setBounds(weatherArea);
+	// Padding between bottom components
+	const int bottomPadding = 15;
+
+	// Split into left / middle / right
+	auto fileLoaderArea = bottomArea.removeFromLeft(totalWidth * 0.40f);
+	bottomArea.removeFromLeft(bottomPadding);
+
+	auto insideToggleArea = bottomArea.removeFromLeft(totalWidth * 0.20f);
+	bottomArea.removeFromLeft(bottomPadding);
+
+	auto weatherArea = bottomArea; // remaining space (right)
+
+	// Apply padding inside each area
+	audioProcessor.fileLoader.setBounds(fileLoaderArea.reduced(10));
+	weatherFetcherComponent.setBounds(weatherArea.reduced(10));
+
+	// Center the inside toggle inside its slot
+	insideToggle.setBounds(
+		insideToggleArea
+		.withSizeKeepingCentre(
+			insideToggleArea.getHeight(),   // square toggle
+			insideToggleArea.getHeight()
+		)
+		.reduced(0)
+	);
 }
 
 

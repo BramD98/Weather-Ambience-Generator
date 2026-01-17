@@ -27,7 +27,9 @@ public:
 
 private:
     juce::TextButton loadFilesButton;
-    juce::Label statusLabel;
+    //juce::Label statusLabel;
+    juce::TextEditor sampleList;
+    std::map<juce::String, juce::String> loadedFiles;
 
     std::map<juce::String, AudioSamplePlayer*> samplePlayers;
     juce::AudioFormatManager formatManager;
@@ -44,6 +46,10 @@ private:
         juce::AudioBuffer<float>& outBuffer,
         double& outSourceSampleRate);
    
+    void updateSampleList();
+    void showLoadFilesMenu();
+    void openFileChooserForPlayer(const juce::String& playerName);
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileLoader)
 };

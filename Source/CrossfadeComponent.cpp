@@ -55,6 +55,31 @@ void CrossfadeComponent::applyGains()
     if (playerA == nullptr || playerB == nullptr || playerC == nullptr)
         return;
 
+    // ADDED: Convert master gain to dB to check if we're effectively silent
+    float masterGainDb = juce::Decibels::gainToDecibels(currentMasterGain, -80.0f);
+    bool shouldBeSilent = (masterGainDb <= silenceThresholdDb);
+
+    // ADDED: Start/Stop logic to save CPU
+    if (shouldBeSilent && !areStopped)
+    {
+        DBG(">>> STOPPING players - Master gain: " << masterGainDb << " dB");
+        // Stop all players when effectively silent
+        playerA->stop();
+        playerB->stop();
+        playerC->stop();
+        areStopped = true;
+        return; // No need to calculate gains if stopped
+    }
+    else if (!shouldBeSilent && areStopped)
+    {
+        DBG(">>> STARTING players - Master gain: " << masterGainDb << " dB");
+        // Restart players when volume comes back up
+        playerA->start();
+        playerB->start();
+        playerC->start();
+        areStopped = false;
+    }
+
     float gainA = 0.0f;
     float gainB = 0.0f;
     float gainC = 0.0f;
@@ -62,7 +87,7 @@ void CrossfadeComponent::applyGains()
     // Three-way crossfade logic:
     // 0.0 - 1.0: Fade from A (full) to B (full), C is silent
     // 1.0 - 2.0: Fade from B (full) to C (full), A is silent
-    
+
     if (currentCrossfade <= 1.0f)
     {
         // First half: crossfade between A and B

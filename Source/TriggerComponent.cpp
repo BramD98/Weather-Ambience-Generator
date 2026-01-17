@@ -11,8 +11,20 @@
 #include "TriggerComponent.h"
 
 TriggerComponent::TriggerComponent(const juce::String& title)
-    : componentTitle(title)
 {
+    // Setup componentTitle as an editable label
+    componentTitle.setText(title, juce::dontSendNotification);
+    componentTitle.setEditable(true, true, false);
+    componentTitle.setJustificationType(juce::Justification::centred);
+    componentTitle.setFont(juce::Font(20.0f, juce::Font::bold));
+    componentTitle.setColour(juce::Label::textColourId, juce::Colours::white);
+    componentTitle.setColour(juce::Label::backgroundWhenEditingColourId, juce::Colour(0xFF1A1A2E));
+    componentTitle.setColour(juce::TextEditor::highlightColourId, juce::Colour(0xFF6FCFFF).withAlpha(0.3f));
+    addAndMakeVisible(componentTitle);
+
+    componentTitle.onTextChange = [this]() {
+        randomToggle.setButtonText("Random " + componentTitle.getText());
+        };
     //Gain Setup
     // === GAIN SLIDER ===
     gainSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -43,7 +55,7 @@ TriggerComponent::TriggerComponent(const juce::String& title)
     addAndMakeVisible(triggerButton);
 
     // Setup random toggle
-    randomToggle.setButtonText("Random " + componentTitle);
+    randomToggle.setButtonText("Random " + title);
     addAndMakeVisible(randomToggle);
 
     // Setup min interval slider - TEXT BOX ONLY
@@ -111,19 +123,11 @@ void TriggerComponent::paint(juce::Graphics& g)
     g.setGradientFill(reflection);
     g.fillRoundedRectangle(reflectionArea, 4.0f);
 
-    // NO OUTER BORDER - removed the full rectangle border
-
-    // Draw title manually with forced bold font
-    g.setColour(juce::Colours::white);
-    g.setFont(juce::Font(20.0f, juce::Font::bold));
-    auto titleBounds = getLocalBounds().removeFromTop(35).reduced(5);
-    g.drawText(componentTitle, titleBounds, juce::Justification::centred);
-
-    // === BLUE LINE UNDER TITLE ONLY ===
+    // === BLUE LINE UNDER TITLE ===
     g.setColour(juce::Colour(0xFF6FCFFF).withAlpha(0.6f));
-    float lineY = titleBounds.getBottom() + 5.0f;
-    g.drawLine(titleBounds.getX() + 10.0f, lineY,
-        titleBounds.getRight() - 10.0f, lineY,
+    float lineY = componentTitle.getBottom() + 5.0f;
+    g.drawLine(componentTitle.getX() + 10.0f, lineY,
+        componentTitle.getRight() - 10.0f, lineY,
         2.0f);
 }
 
@@ -131,8 +135,12 @@ void TriggerComponent::resized()
 {
     auto bounds = getLocalBounds().reduced(10);
 
-    // Skip title area
-    bounds.removeFromTop(35);
+    // ================================
+    // TITLE (now a Label component)
+    // ================================
+    auto titleArea = bounds.removeFromTop(35);
+    componentTitle.setBounds(titleArea.reduced(5, 0));
+
     bounds.removeFromTop(10);
 
     // === VERTICAL SPLIT ===
@@ -151,7 +159,7 @@ void TriggerComponent::resized()
     auto randomBounds = randomSlot.withSizeKeepingCentre(150, rowHeight);
     randomToggle.setBounds(randomBounds);
 
-    leftArea.removeFromTop(rowSpacing );
+    leftArea.removeFromTop(rowSpacing);
 
     // Min interval
     auto minArea = leftArea.removeFromTop(rowHeight);

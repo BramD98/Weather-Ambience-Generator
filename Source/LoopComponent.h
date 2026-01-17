@@ -25,8 +25,8 @@ public:
     void setGainAttachment(juce::AudioProcessorValueTreeState& apvts, const juce::String& parameterID);
 
 private:
-    juce::String componentTitle;
-    juce::Label titleLabel;
+    juce::Label componentTitle;
+    //juce::Label titleLabel;
     juce::Label calmLabel;
     juce::Label mediumLabel;
     juce::Label strongLabel;

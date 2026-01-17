@@ -17,6 +17,7 @@
 #include "AudioSamplePlayer.h"
 #include "FileLoader.h"
 #include "CrossfadeComponent.h"
+#include "WeatherAudioMapper.h"
 
 
 
@@ -68,6 +69,8 @@ public:
     Parameters params;
     WeatherManager* getWeatherManager() { return weatherManager.get(); }
 
+    void updateWeatherParameters(const WeatherFetcher::WeatherData& data);
+
     // Loopers
     AudioSamplePlayer calmWindPlayer;
     AudioSamplePlayer midWindPlayer;
@@ -101,14 +104,23 @@ public:
     CrossfadeComponent waterCrossfade;
     
     FileLoader fileLoader;
+    juce::dsp::StateVariableTPTFilter<float> lowPassFilter;
+    juce::dsp::Limiter<float> limiter;
+    
+
 
 private:
     //==============================================================================
     std::unique_ptr <WeatherManager> weatherManager;
+    WeatherAudioMapper weatherMapper;
     void FileLoaderRegisterPlayers();
     void PrepareSamplePlayers(double sampleRate, int samplesPerBlock);
     void ProcessSamplePlayers(juce::AudioBuffer<float>& buffer);
-    
+    std::atomic<bool> weatherControlEnabled{ false };
+    WeatherAudioMapper::AudioParameters weatherParams;
+    juce::SpinLock weatherParamsLock;
+    float lowpassCutoffFreq = 1750.0f;
+    float calculateSmartGainCompensation();
   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WeatherAmbienceGeneratorAudioProcessor)
 };

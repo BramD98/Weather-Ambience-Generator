@@ -2,22 +2,53 @@
 // FileLoader.cpp
 // ============================================================================
 #include "FileLoader.h"
+static const juce::StringArray loopCategories{
+    "Wind", "Rain", "Fire", "City", "Water"
+};
+
+static const juce::StringArray loopIntensities{
+    "Calm", "Mid", "Heavy"
+};
+
+static const juce::StringArray oneShotCategories{
+    "Thunder", "Earthquake", "Beast"
+};
+
+struct MenuTarget
+{
+    juce::String playerName;
+};
 
 FileLoader::FileLoader()
 {
     // Register audio formats
     formatManager.registerBasicFormats();
+    
 
     // Setup load button
     loadFilesButton.setButtonText("Load Audio Files");
-    loadFilesButton.onClick = [this] { showSampleSelectionMenu(); };
+    loadFilesButton.onClick = [this] { showLoadFilesMenu();  };
     addAndMakeVisible(loadFilesButton);
 
-    // Setup status label
-    statusLabel.setText("No files loaded", juce::dontSendNotification);
-    statusLabel.setJustificationType(juce::Justification::centred);
-    statusLabel.setColour(juce::Label::textColourId, juce::Colours::grey);
-    addAndMakeVisible(statusLabel);
+    sampleList.setMultiLine(true);
+    sampleList.setReadOnly(true);
+    sampleList.setScrollbarsShown(true);
+    sampleList.setCaretVisible(false);
+    sampleList.setPopupMenuEnabled(false);
+    sampleList.setJustification(juce::Justification::topLeft);
+  //  sampleList.setFont(juce::Font(14.0f));
+
+    sampleList.setColour(juce::TextEditor::textColourId, juce::Colours::white);
+    sampleList.setColour(juce::TextEditor::backgroundColourId, juce::Colours::transparentBlack);
+    sampleList.setColour(juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
+
+    addAndMakeVisible(sampleList);
+    //// Setup status label
+    //statusLabel.setText("No files loaded", juce::dontSendNotification);
+    //statusLabel.setJustificationType(juce::Justification::centred);
+    //statusLabel.setColour(juce::Label::textColourId, juce::Colours::grey);
+    //addAndMakeVisible(statusLabel);
+    updateSampleList();
 }
 
 FileLoader::~FileLoader()
@@ -76,7 +107,7 @@ void FileLoader::paint(juce::Graphics& g)
 
     // === TITLE ===
     g.setColour(juce::Colours::white);
-    g.setFont(juce::Font(20.0f, juce::Font::bold));
+    g.setFont(g.getCurrentFont().withHeight(20.0f).withStyle(juce::Font::bold));
 
     auto titleBounds = getLocalBounds().removeFromTop(35).reduced(5);
     g.drawText("Sample Loader", titleBounds, juce::Justification::centred);
@@ -118,8 +149,8 @@ void FileLoader::resized()
     );
 
     // === RIGHT COLUMN ===
-    statusLabel.setBounds(statusArea.reduced(6));
-    statusLabel.setJustificationType(juce::Justification::centred);
+    sampleList.setBounds(statusArea.reduced(6));
+    //statusLabel.setJustificationType(juce::Justification::centred);
 }
 
 void FileLoader::registerPlayer(const juce::String& name, AudioSamplePlayer* player)
@@ -127,6 +158,7 @@ void FileLoader::registerPlayer(const juce::String& name, AudioSamplePlayer* pla
     if (player != nullptr)
     {
         samplePlayers[name] = player;
+        updateSampleList();
     }
 }
 
@@ -158,9 +190,9 @@ bool FileLoader::loadFileForPlayer(const juce::String& playerName, const juce::F
         // Pass the buffer to the player
         if (player->loadBuffer(preparedBuffer, sourceSampleRate))
         {
-            statusLabel.setText(playerName + ": " + file.getFileName(),
-                juce::dontSendNotification);
-            statusLabel.setColour(juce::Label::textColourId, juce::Colours::lightgreen);
+            loadedFiles[playerName] = file.getFileName();
+            updateSampleList();
+          //  statusLabel.setColour(juce::Label::textColourId, juce::Colours::lightgreen);
             DBG("Successfully loaded " + file.getFullPathName() + " for " + playerName);
             return true;
         }
@@ -265,6 +297,42 @@ bool FileLoader::loadAndPrepareFile(const juce::File& file,
     return true;
 }
 
+void FileLoader::updateSampleList()
+{
+    juce::String text;
+
+    // --- Loops first, ordered by category and intensity ---
+    for (auto& category : loopCategories)
+    {
+        for (auto& intensity : loopIntensities)
+        {
+            juce::String playerName = intensity + " " + category; // matches your registration
+
+            juce::String fileName = "_";
+            auto it = loadedFiles.find(playerName);
+            if (it != loadedFiles.end())
+                fileName = it->second;
+
+            text += playerName + " : " + fileName + "\n";
+        }
+    }
+
+    // --- One Shots ---
+    for (auto& category : oneShotCategories)
+    {
+        juce::String playerName = category;
+
+        juce::String fileName = "_";
+        auto it = loadedFiles.find(playerName);
+        if (it != loadedFiles.end())
+            fileName = it->second;
+
+        text += playerName + " : " + fileName + "\n";
+    }
+
+    sampleList.setText(text, juce::dontSendNotification);
+}
+
 void FileLoader::showSampleSelectionMenu()
 {
     juce::PopupMenu menu;
@@ -329,26 +397,24 @@ void FileLoader::showSampleSelectionMenu()
                                 {
                                     if (player->loadBuffer(preparedBuffer, sourceSampleRate))
                                     {
-                                        statusLabel.setText(sampleName + ": " + file.getFileName(),
-                                            juce::dontSendNotification);
-                                        statusLabel.setColour(juce::Label::textColourId,
-                                            juce::Colours::lightgreen);
+                                        loadedFiles[sampleName] = file.getFileName();
+                                        updateSampleList();
                                         DBG(sampleName + " loaded: " + file.getFullPathName());
                                     }
                                     else
                                     {
-                                        statusLabel.setText("Failed to load buffer for " + sampleName,
+                                        /*statusLabel.setText("Failed to load buffer for " + sampleName,
                                             juce::dontSendNotification);
                                         statusLabel.setColour(juce::Label::textColourId,
-                                            juce::Colours::red);
+                                            juce::Colours::red);*/
                                     }
                                 }
                                 else
                                 {
-                                    statusLabel.setText("Failed to read file for " + sampleName,
+                                   /* statusLabel.setText("Failed to read file for " + sampleName,
                                         juce::dontSendNotification);
                                     statusLabel.setColour(juce::Label::textColourId,
-                                        juce::Colours::red);
+                                        juce::Colours::red);*/
                                 }
                             }
                         });
@@ -379,9 +445,9 @@ void FileLoader::loadNextSample(const std::vector<juce::String>& playerNames,
         // All done!
         if (*totalLoaded > 0)
         {
-            statusLabel.setText(juce::String(*totalLoaded) + " file(s) loaded successfully",
+            /*statusLabel.setText(juce::String(*totalLoaded) + " file(s) loaded successfully",
                 juce::dontSendNotification);
-            statusLabel.setColour(juce::Label::textColourId, juce::Colours::lightgreen);
+            statusLabel.setColour(juce::Label::textColourId, juce::Colours::lightgreen);*/
         }
         return;
     }
@@ -414,27 +480,96 @@ void FileLoader::loadNextSample(const std::vector<juce::String>& playerNames,
                     if (currentPlayer->loadBuffer(preparedBuffer, sourceSampleRate))
                     {
                         (*totalLoaded)++;
-                        statusLabel.setText(currentPlayerName + ": " + file.getFileName(),
-                            juce::dontSendNotification);
-                        statusLabel.setColour(juce::Label::textColourId, juce::Colours::lightgreen);
-                        DBG(currentPlayerName + " loaded: " + file.getFullPathName());
+                        loadedFiles[currentPlayerName] = file.getFileName();
+                        updateSampleList();
                     }
                     else
                     {
-                        statusLabel.setText("Failed to load buffer for " + currentPlayerName,
+                        /*statusLabel.setText("Failed to load buffer for " + currentPlayerName,
                             juce::dontSendNotification);
-                        statusLabel.setColour(juce::Label::textColourId, juce::Colours::orange);
+                        statusLabel.setColour(juce::Label::textColourId, juce::Colours::orange);*/
                     }
                 }
                 else
                 {
-                    statusLabel.setText("Failed to read file for " + currentPlayerName,
+                    /*statusLabel.setText("Failed to read file for " + currentPlayerName,
                         juce::dontSendNotification);
-                    statusLabel.setColour(juce::Label::textColourId, juce::Colours::orange);
+                    statusLabel.setColour(juce::Label::textColourId, juce::Colours::orange);*/
                 }
             }
 
             // Move to next sample (whether current succeeded or user cancelled)
             loadNextSample(playerNames, currentIndex + 1, totalLoaded);
+        });
+}
+
+void FileLoader::showLoadFilesMenu()
+{
+    juce::PopupMenu menu;
+    auto targets = std::make_shared<std::map<int, juce::String>>();
+    int id = 1;
+
+    // --- LOOPS ---
+    juce::PopupMenu loopsMenu;
+
+    for (auto& category : loopCategories) // "Wind", "Rain", etc.
+    {
+        juce::PopupMenu categoryMenu;
+
+        for (auto& intensity : loopIntensities) // "Calm", "Mid", "Heavy"
+        {
+            // Match your player keys: "Calm Wind", "Mid Wind", etc.
+            juce::String playerName = intensity + " " + category;
+            categoryMenu.addItem(id, intensity);
+            (*targets)[id] = playerName;
+            ++id;
+        }
+
+        loopsMenu.addSubMenu(category, categoryMenu);
+    }
+
+    // --- ONE SHOTS ---
+    juce::PopupMenu oneShotsMenu;
+    for (auto& category : oneShotCategories)
+    {
+        oneShotsMenu.addItem(id, category);
+        (*targets)[id] = category;
+        ++id;
+    }
+
+    menu.addSubMenu("Loops", loopsMenu);
+    menu.addSubMenu("One Shots", oneShotsMenu);
+
+    // --- SHOW MENU ---
+    menu.showMenuAsync(juce::PopupMenu::Options(),
+        [this, targets](int result)
+        {
+            if (result == 0) return;
+
+            auto it = targets->find(result);
+            if (it == targets->end()) return;
+
+            openFileChooserForPlayer(it->second);
+        });
+}
+void FileLoader::openFileChooserForPlayer(const juce::String& playerName)
+{
+    auto fileChooser = std::make_shared<juce::FileChooser>(
+        "Select audio file for " + playerName,
+        juce::File{},
+        "*.wav;*.mp3;*.aif;*.aiff;*.flac;*.ogg"
+    );
+
+    auto chooserFlags = juce::FileBrowserComponent::openMode
+        | juce::FileBrowserComponent::canSelectFiles;
+
+    fileChooser->launchAsync(chooserFlags,
+        [this, playerName, fileChooser](const juce::FileChooser& fc)
+        {
+            auto file = fc.getResult();
+            if (file == juce::File{})
+                return;
+
+            loadFileForPlayer(playerName, file);
         });
 }

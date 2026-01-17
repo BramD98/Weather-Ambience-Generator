@@ -9,11 +9,15 @@
 */
 
 #include "WeatherAPIComponent.h"
+#include "WeatherAudioMapper.h"
+
+
 WeatherAPIComponent::WeatherAPIComponent()
 {
     // Setup city input
     cityInput.setText("London");
-    cityInput.setFont(juce::Font(16.0f));
+    auto customFont = juce::Font(16.0f); // This will use the default set by LookAndFeel
+    cityInput.setFont(customFont);
     cityInput.setJustification(juce::Justification::centred);
     addAndMakeVisible(cityInput);
 
@@ -29,7 +33,7 @@ WeatherAPIComponent::WeatherAPIComponent()
     statusLabel.setCaretVisible(false);
     statusLabel.setPopupMenuEnabled(false);
     statusLabel.setJustification(juce::Justification::topLeft);
-    statusLabel.setFont(juce::Font(14.0f));
+   statusLabel.setFont(juce::Font(14.0f));
     statusLabel.setColour(juce::TextEditor::textColourId, juce::Colours::white);
     statusLabel.setColour(juce::TextEditor::backgroundColourId, juce::Colours::transparentBlack);
     statusLabel.setColour(juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
@@ -78,7 +82,7 @@ void WeatherAPIComponent::paint(juce::Graphics& g)
 
     // Draw title
     g.setColour(juce::Colours::white);
-    g.setFont(juce::Font(20.0f, juce::Font::bold));
+    g.setFont(g.getCurrentFont().withHeight(20.0f).withStyle(juce::Font::bold));
     auto titleBounds = getLocalBounds().removeFromTop(35).reduced(5);
     g.drawText("Weather API", titleBounds, juce::Justification::centred);
 
@@ -171,8 +175,11 @@ void WeatherAPIComponent::onFetchButtonClicked()
 
 void WeatherAPIComponent::onWeatherUpdate(const WeatherManager::WeatherData& data)
 {
+    
     if (data.isValid)
     {
+      
+
         juce::String weatherInfo = "Weather: " + data.condition + "\n";
         weatherInfo += "Temp: " + juce::String(data.temperature, 1) + "°C\n";
         weatherInfo += "Wind: " + juce::String(data.windSpeed, 1) + " m/s\n";
@@ -180,6 +187,20 @@ void WeatherAPIComponent::onWeatherUpdate(const WeatherManager::WeatherData& dat
         weatherInfo += "Rain: " + juce::String(data.precipitation, 1) + " mm";
 
         statusLabel.setText(weatherInfo, juce::dontSendNotification);
+
+       
+
+        // ADDED: Notify that weather was fetched
+        if (onWeatherFetched)
+        {
+            
+            onWeatherFetched(data);
+           
+        }
+        else
+        {
+            
+        }
     }
     else
     {

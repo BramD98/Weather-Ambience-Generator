@@ -41,5 +41,6 @@ private:
     std::atomic<float> crossfadeValue{ 0.0f };
     std::atomic<float> masterGain{ 1.0f };
 
-    //void updatePlayerGains();
+    bool areStopped = false;
+    static constexpr float silenceThresholdDb = -79.0f;
 };

@@ -37,7 +37,7 @@ public:
    
 
 private:
-    juce::String componentTitle;
+    juce::Label componentTitle;
     AudioSamplePlayer* playerPtr = nullptr;
 
     // UI Components

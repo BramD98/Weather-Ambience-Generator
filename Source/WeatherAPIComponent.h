@@ -22,6 +22,7 @@ public:
     void resized() override;
 
     void setWeatherManager(WeatherManager* manager);
+    std::function<void(const WeatherManager::WeatherData&)> onWeatherFetched;
 
 private:
     WeatherManager* weatherManager = nullptr;
