@@ -168,10 +168,11 @@ bool WeatherAmbienceGeneratorAudioProcessor::isBusesLayoutSupported(const BusesL
 void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
 	juce::ScopedNoDenormals noDenormals;
-	auto totalNumOutputChannels = getTotalNumOutputChannels();
 	buffer.clear();
 
 	params.update();
+	for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+		params.smoothen();
 	
 
 	// Weather control override
@@ -230,15 +231,6 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 	beastPlayer.setRandomTriggerEnabled(params.randomBeastToggle);
 	beastPlayer.setRandomTriggerInterval(params.minIntBeast, params.maxIntBeast);
 	beastPlayer.setGain(params.randomBeastGain);
-
-	for (int channel = 0; channel < totalNumOutputChannels; ++channel)
-	{
-		auto* channelData = buffer.getWritePointer(channel);
-		for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-		{
-			params.smoothen();
-		}
-	}
 
 	ProcessSamplePlayers(buffer);
 

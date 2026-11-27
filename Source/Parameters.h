@@ -23,7 +23,7 @@ const juce::ParameterID waterCrossfadeParamID{ "waterCrossfade",1 };
 const juce::ParameterID randomThunderToggleParamID{ "randomThunderToggle" , 1 };
 const juce::ParameterID minIntervalThunderParamID{ "minIntervalThunder" , 1 };
 const juce::ParameterID maxIntervalThunderParamID{ "maxIntervalThunder" , 1 };
-const juce::ParameterID randomThunderGainParamID{ "randomThungerGain",1 };
+const juce::ParameterID randomThunderGainParamID{ "randomThunderGain",1 };
 
 const juce::ParameterID randomEarthquakeToggleParamID{ "randomEarthquakeToggle" , 1 };
 const juce::ParameterID minIntervalEarthquakeParamID{ "minIntervalEarthquake" , 1 };
@@ -32,10 +32,10 @@ const juce::ParameterID randomEarthquakeGainParamID{ "randomEarthquakeGain",1 };
 
 const juce::ParameterID randomBeastToggleParamID{ "randomBeastToggle" , 1 };
 const juce::ParameterID minIntervalBeastParamID{ "minIntervalBeast" , 1 };
-const juce::ParameterID maxIntervalBeastParamID{ "maxIntervaBeast" , 1 };
+const juce::ParameterID maxIntervalBeastParamID{ "maxIntervalBeast" , 1 };
 const juce::ParameterID randomBeastGainParamID{ "randomBeastGain",1 };
 
-const juce::ParameterID lowpassToggleParamID{ "lowpasToggleParamID",1 };
+const juce::ParameterID lowpassToggleParamID{ "lowpasToggle",1 };
 
 
 
