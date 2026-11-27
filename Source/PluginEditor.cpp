@@ -15,6 +15,7 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 	: AudioProcessorEditor(&p), audioProcessor(p), windLoopComponent("Wind"), rainLoopComponent("Rain"), fireLoopComponent("Fire"),cityLoopComponent("City"),waterLoopComponent("Water"), 
 	thunderComponent("Thunder"),earthquakeComponent("Earthquake"), beastComponent("Beast Roar")
 {
+
 	rotaryRingImg = juce::ImageFileFormat::loadFrom(BinaryData::RotaryRing_png, BinaryData::RotaryRing_pngSize);
 	rotaryKnobImg = juce::ImageFileFormat::loadFrom(BinaryData::RotaryKnob_png, BinaryData::RotaryKnob_pngSize);
 	textBoxImg = juce::ImageFileFormat::loadFrom(BinaryData::textBoxImg_png, BinaryData::textBoxImg_pngSize);
@@ -27,12 +28,6 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 	
 	setSize(1200, 800);
 
-	//// Title setup
-	//titleLabel.setText("Weather Ambience Generator", juce::dontSendNotification);
-	//titleLabel.setFont(juce::Font(24.0f, juce::Font::bold));
-	//titleLabel.setJustificationType(juce::Justification::centred);
-	//titleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-	//addAndMakeVisible(titleLabel);
 	
 	//Weather Fetcher
 	weatherFetcherComponent.setLookAndFeel(&mainLNF);
@@ -49,7 +44,7 @@ WeatherAmbienceGeneratorAudioProcessorEditor::WeatherAmbienceGeneratorAudioProce
 	addAndMakeVisible(cityLoopComponent);
 	addAndMakeVisible(waterLoopComponent);
 
-	// Set attachments - what are your parameter IDs for wind intensity and gain?
+	
 	windLoopComponent.setIntensityAttachment(audioProcessor.apvts, windCrossfadeParamID.getParamID());
 	windLoopComponent.setGainAttachment(audioProcessor.apvts, windGainParamID.getParamID());
 	

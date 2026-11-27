@@ -19,7 +19,6 @@
       <FILE id="ZF8qKf" name="RotaryKnob.png" compile="0" resource="1" file="Resources/RotaryKnob.png"/>
       <FILE id="nBZF0r" name="RotaryRing.png" compile="0" resource="1" file="Resources/RotaryRing.png"/>
       <FILE id="d7Vxar" name="textBoxImg.png" compile="0" resource="1" file="Resources/textBoxImg.png"/>
-      <FILE id="TMmqZs" name="Wind_Calm.wav" compile="0" resource="1" file="../SFX/Wind_Calm.wav"/>
       <FILE id="oPRn5O" name="Window_Closed.png" compile="0" resource="1"
             file="Resources/Window_Closed.png"/>
       <FILE id="Ah6U5F" name="Window_Open.png" compile="0" resource="1" file="Resources/Window_Open.png"/>

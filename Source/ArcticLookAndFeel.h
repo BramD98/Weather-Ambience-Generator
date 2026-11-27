@@ -49,6 +49,7 @@ public:
     void drawLabel(juce::Graphics& g, juce::Label& label) override;
 
     juce::Font getSliderPopupFont(juce::Slider&) override;
+   
 private:
     juce::Image buttonBackgroundImg;
     juce::Image ringImage;

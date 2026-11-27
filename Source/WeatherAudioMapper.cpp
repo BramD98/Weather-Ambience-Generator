@@ -26,11 +26,11 @@ WeatherAudioMapper::AudioParameters WeatherAudioMapper::mapWeatherToAudio(const 
     if (!weather.isValid)
         return params;
 
-    // Map wind speed to parameters
+   
     params.windIntensity = mapWindSpeedToIntensity(weather.windSpeed);
     params.windGain = mapWindSpeedToGain(weather.windSpeed);
 
-    // Map precipitation to parameters
+    
     params.rainIntensity = mapPrecipitationToIntensity(weather.precipitation);
     params.rainGain = mapPrecipitationToGain(weather.precipitation);
 
@@ -63,7 +63,7 @@ float WeatherAudioMapper::mapWindSpeedToGain(double windSpeed)
 
     float normalized = juce::jlimit(0.0f, 1.0f, static_cast<float>(windSpeed) / 15.0f);
 
-    // Use linear instead of squared for louder results
+   
     return normalized;
 }
 
@@ -87,7 +87,7 @@ float WeatherAudioMapper::mapPrecipitationToIntensity(double precipitation)
 
 float WeatherAudioMapper::mapPrecipitationToGain(double precipitation)
 {
-    // More aggressive - at 5mm/h rain should be quite audible
+   
     float normalized = juce::jlimit(0.0f, 1.0f, static_cast<float>(precipitation) / 5.0f);
 
     return normalized;

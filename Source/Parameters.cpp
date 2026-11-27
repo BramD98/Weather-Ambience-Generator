@@ -131,6 +131,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
 		randomThunderGainParamID.getParamID(), "randomThunderGain",
 		juce::NormalisableRange<float>{ -24.f, 24.f, 0.1f, 1.0f},
 		0.0f));
+
 	//Earthquake
 
 	layout.add(std::make_unique<juce::AudioParameterBool>(

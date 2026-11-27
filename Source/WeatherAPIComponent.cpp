@@ -16,8 +16,8 @@ WeatherAPIComponent::WeatherAPIComponent()
 {
     // Setup city input
     cityInput.setText("London");
-    auto customFont = juce::Font(16.0f); // This will use the default set by LookAndFeel
-    cityInput.setFont(customFont);
+   // auto customFont = juce::Font(16.0f); // This will use the default set by LookAndFeel
+   // cityInput.setFont(customFont);
     cityInput.setJustification(juce::Justification::centred);
     addAndMakeVisible(cityInput);
 
@@ -33,7 +33,7 @@ WeatherAPIComponent::WeatherAPIComponent()
     statusLabel.setCaretVisible(false);
     statusLabel.setPopupMenuEnabled(false);
     statusLabel.setJustification(juce::Justification::topLeft);
-   statusLabel.setFont(juce::Font(14.0f));
+   //statusLabel.setFont(juce::Font(14.0f));
     statusLabel.setColour(juce::TextEditor::textColourId, juce::Colours::white);
     statusLabel.setColour(juce::TextEditor::backgroundColourId, juce::Colours::transparentBlack);
     statusLabel.setColour(juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
@@ -82,7 +82,7 @@ void WeatherAPIComponent::paint(juce::Graphics& g)
 
     // Draw title
     g.setColour(juce::Colours::white);
-    g.setFont(g.getCurrentFont().withHeight(20.0f).withStyle(juce::Font::bold));
+   // g.setFont(g.getCurrentFont().withHeight(20.0f).withStyle(juce::Font::bold));
     auto titleBounds = getLocalBounds().removeFromTop(35).reduced(5);
     g.drawText("Weather API", titleBounds, juce::Justification::centred);
 

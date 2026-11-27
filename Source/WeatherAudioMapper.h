@@ -15,10 +15,10 @@
 class WeatherAudioMapper {
 public:
     struct AudioParameters {
-        float windIntensity = 0.0f;    // 0.0 to 2.0 (crossfade value)
-        float windGain = 0.0f;         // 0.0 to 1.0 (master gain)
-        float rainIntensity = 0.0f;    // 0.0 to 2.0 (crossfade value)
-        float rainGain = 0.0f;         // 0.0 to 1.0 (master gain)
+        float windIntensity = 0.0f;    
+        float windGain = 0.0f;         
+        float rainIntensity = 0.0f;    
+        float rainGain = 0.0f;         
     };
 
     WeatherAudioMapper();

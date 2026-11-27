@@ -27,7 +27,7 @@ public:
 
 private:
     juce::TextButton loadFilesButton;
-    //juce::Label statusLabel;
+  
     juce::TextEditor sampleList;
     std::map<juce::String, juce::String> loadedFiles;
 

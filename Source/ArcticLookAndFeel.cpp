@@ -15,6 +15,7 @@ ArcticLookAndFeel::ArcticLookAndFeel()
 {
     buttonBackgroundImg = juce::ImageFileFormat::loadFrom(
         BinaryData::button_bg_png, BinaryData::button_bg_pngSize);
+    setDefaultSansSerifTypeface(Fonts::getFont().getTypefacePtr());
 }
 
 juce::Font ArcticLookAndFeel::getLabelFont([[maybe_unused]] juce::Label& label)
@@ -165,10 +166,11 @@ juce::Font ArcticLookAndFeel::getSliderPopupFont(juce::Slider&)
     return juce::Font(14.0f, juce::Font::bold);
 }
 
+
 void ArcticLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height,
     float sliderPosProportional, float rotaryStartAngle,
     float rotaryEndAngle, juce::Slider& slider)
-{
+{ 
     float alpha = slider.isEnabled() ? 1.0f : 0.3f;
     const float centerX = x + width * 0.5f;
     const float centerY = y + height * 0.5f;
