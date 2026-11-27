@@ -69,3 +69,5 @@ export_compile_commands.json
 *.cache
 *.pch
 *.ipch
+
+apikey.txt

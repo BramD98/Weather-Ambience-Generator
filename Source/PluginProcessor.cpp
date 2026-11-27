@@ -10,6 +10,17 @@
 #include "PluginEditor.h"
 #include "ProtectYourEars.h"
 
+static juce::String loadApiKey()
+{
+	juce::File apiTxtFile{"C:/Users/bramd/Desktop/WeatherAmbGenerator/Weather Ambience Generator/apikey.txt"};
+	if (!apiTxtFile.existsAsFile())
+	{
+		DBG("Api file not found");
+		return {};
+	}
+	return apiTxtFile.loadFileAsString().trim();
+}
+
 //==============================================================================
 WeatherAmbienceGeneratorAudioProcessor::WeatherAmbienceGeneratorAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -23,7 +34,7 @@ WeatherAmbienceGeneratorAudioProcessor::WeatherAmbienceGeneratorAudioProcessor()
 	), apvts(*this, nullptr, "Parameters", Parameters::createParameterLayout()), params(apvts)
 #endif
 {
-	weatherManager = std::make_unique<WeatherManager>(m_apiKey);
+	weatherManager = std::make_unique<WeatherManager>(loadApiKey());
 	FileLoaderRegisterPlayers();
 	lowPassFilter.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
 }
@@ -556,3 +567,4 @@ float WeatherAmbienceGeneratorAudioProcessor::calculateSmartGainCompensation()
 
 	return 1.0f; // No compensation needed
 }
+

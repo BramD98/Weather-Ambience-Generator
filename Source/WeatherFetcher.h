@@ -11,8 +11,6 @@
 #pragma once
 #include "JuceHeader.h"
 
-const juce::String m_apiKey = "184ed93dc4811020f74ce7193507e8fb";
-
 class WeatherFetcher {
 public:
 	struct WeatherData {
