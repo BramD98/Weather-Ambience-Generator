@@ -545,7 +545,7 @@ float WeatherAmbienceGeneratorAudioProcessor::calculateSmartGainCompensation()
 {
 	
 	int activeCount = 0;
-	const float activeThreshold = -40.0f; // dB
+	const float activeThreshold = juce::Decibels::decibelsToGain(- 40.0f); // dB as linear gain
 
 	if (params.windGain > activeThreshold) activeCount++;
 	if (params.rainGain > activeThreshold) activeCount++;
@@ -556,7 +556,7 @@ float WeatherAmbienceGeneratorAudioProcessor::calculateSmartGainCompensation()
 	
 	if (activeCount >= 3)
 	{
-		// Gentle reduction: -3 dB for 3 elements, -4.5 dB for 4, -6 dB for 5
+		// Gentle reduction: -1.5 dB for 3 elements, -3 dB for 4, -4.5 dB for 5
 		float compensationDb = -1.5f * (activeCount - 2);
 		return juce::Decibels::decibelsToGain(compensationDb);
 	}

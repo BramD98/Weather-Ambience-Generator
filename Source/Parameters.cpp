@@ -255,7 +255,7 @@ void Parameters::reset() noexcept
 
 	randomBeastGain = 0.0f;
 	randomBeastGainSmoother.setCurrentAndTargetValue(
-		juce::Decibels::decibelsToGain(randomEarthquakeGainParam->get()));
+		juce::Decibels::decibelsToGain(randomBeastGainParam->get()));
 
 }
 void Parameters::update() noexcept
