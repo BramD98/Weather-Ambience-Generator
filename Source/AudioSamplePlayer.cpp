@@ -17,6 +17,7 @@ AudioSamplePlayer::AudioSamplePlayer()
 
 void AudioSamplePlayer::prepareSamplePlayer(double sampleRate, int samplesPerBlock)
 {
+    gainSmoother.reset(sampleRate, 0.05);
     currentSampleRate = sampleRate;
 }
 
@@ -78,10 +79,10 @@ void AudioSamplePlayer::passSampleToBuffer(juce::AudioBuffer<float>& outputBuffe
             }
         }
 
-        
+        const float g = gainSmoother.getNextValue();
         for (int channel = 0; channel < numChannels; ++channel)
         {
-            float sample = buffer.getSample(channel, position) * gain;
+            float sample = buffer.getSample(channel, position) * g;
             outputBuffer.addSample(channel, startSample + i, sample);
         }
 
@@ -147,7 +148,7 @@ void AudioSamplePlayer::stop()
 void AudioSamplePlayer::setGain(float newGain)
 {
     
-    gain = juce::jmax(0.0f, newGain);  
+    gainSmoother.setTargetValue(juce::jmax(0.0f, newGain));
 }
 
 

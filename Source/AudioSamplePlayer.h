@@ -58,7 +58,7 @@ private:
     
     int position = 0;
     bool isPlaying = false;
-    float gain = 1.0f;
+    juce::LinearSmoothedValue<float> gainSmoother{ 1.0f };
 
     
    std::atomic<bool> isLoaded = false;

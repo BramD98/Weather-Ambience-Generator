@@ -35,7 +35,7 @@ const juce::ParameterID minIntervalBeastParamID{ "minIntervalBeast" , 1 };
 const juce::ParameterID maxIntervalBeastParamID{ "maxIntervalBeast" , 1 };
 const juce::ParameterID randomBeastGainParamID{ "randomBeastGain",1 };
 
-const juce::ParameterID lowpassToggleParamID{ "lowpasToggle",1 };
+const juce::ParameterID lowpassToggleParamID{ "lowpassToggle",1 };
 
 
 

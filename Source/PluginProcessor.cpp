@@ -174,12 +174,11 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 	for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
 		params.smoothen();
 
-		// Use manual controls
-		windCrossfade.setMasterGain(params.windGain);
-		windCrossfade.setCrossfadeValue(params.windCrossfade);
-
-		rainCrossfade.setMasterGain(params.rainGain);
-		rainCrossfade.setCrossfadeValue(params.rainCrossfade);
+	
+	windCrossfade.setMasterGain(params.windGain);
+	windCrossfade.setCrossfadeValue(params.windCrossfade);
+	rainCrossfade.setMasterGain(params.rainGain);
+	rainCrossfade.setCrossfadeValue(params.rainCrossfade);
 
 
 	windCrossfade.applyGains();
