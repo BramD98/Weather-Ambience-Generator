@@ -2,7 +2,8 @@
 
 <JUCERPROJECT id="fiEoJO" name="Weather Ambience Generator" projectType="audioplug"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1"
-              companyName="ArcticAudio" pluginManufacturerCode="ARAU" cppLanguageStandard="20">
+              companyName="ArcticAudio" pluginManufacturerCode="ARAU" cppLanguageStandard="20"
+              pluginCharacteristicsValue="pluginIsSynth">
   <MAINGROUP id="QSZ6pK" name="Weather Ambience Generator">
     <GROUP id="{A7E1660C-E0EC-12DF-F006-CBFF776DD3D7}" name="Resources">
       <FILE id="qsEqZh" name="ABOFont.ttf" compile="0" resource="1" file="Resources/ABOFont.ttf"/>
