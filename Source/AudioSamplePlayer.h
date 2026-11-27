@@ -76,6 +76,7 @@ private:
     double samplesSinceLastTrigger = 0.0;
     double samplesToNextTrigger = 0.0;
     juce::Random random;
+    void rewind();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioSamplePlayer)
 };

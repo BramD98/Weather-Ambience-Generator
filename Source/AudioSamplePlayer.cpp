@@ -142,7 +142,6 @@ void AudioSamplePlayer::stop()
 {
     
     isPlaying = false;
-    position = 0;
 }
 
 void AudioSamplePlayer::setGain(float newGain)
@@ -205,6 +204,11 @@ void AudioSamplePlayer::scheduleNextRandomTrigger()
     float intervalSeconds = minSec + random.nextFloat() * (maxSec - minSec);
     samplesToNextTrigger = intervalSeconds * currentSampleRate;
     samplesSinceLastTrigger = 0.0;
+}
+
+void AudioSamplePlayer::rewind()
+{
+    position = 0.0f;
 }
 
 bool AudioSamplePlayer::getIsPlaying() const
