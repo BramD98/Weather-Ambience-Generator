@@ -115,9 +115,6 @@ private:
     void FileLoaderRegisterPlayers();
     void PrepareSamplePlayers(double sampleRate, int samplesPerBlock);
     void ProcessSamplePlayers(juce::AudioBuffer<float>& buffer);
-    std::atomic<bool> weatherControlEnabled{ false };
-    WeatherAudioMapper::AudioParameters weatherParams;
-    juce::SpinLock weatherParamsLock;
     float lowpassCutoffFreq = 1750.0f;
     float calculateSmartGainCompensation();
   

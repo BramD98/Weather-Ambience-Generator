@@ -173,28 +173,6 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 	params.update();
 	for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
 		params.smoothen();
-	
-
-	// Weather control override
-	if (weatherControlEnabled.load())
-	{
-		
-
-		WeatherAudioMapper::AudioParameters currentWeatherParams;
-		{
-			juce::SpinLock::ScopedLockType lock(weatherParamsLock);
-			currentWeatherParams = weatherParams;
-		}
-
-		// Use weather data
-		windCrossfade.setMasterGain(currentWeatherParams.windGain);
-		windCrossfade.setCrossfadeValue(currentWeatherParams.windIntensity);
-
-		rainCrossfade.setMasterGain(currentWeatherParams.rainGain);
-		rainCrossfade.setCrossfadeValue(currentWeatherParams.rainIntensity);
-	}
-	else
-	{
 
 		// Use manual controls
 		windCrossfade.setMasterGain(params.windGain);
@@ -202,7 +180,7 @@ void WeatherAmbienceGeneratorAudioProcessor::processBlock(juce::AudioBuffer<floa
 
 		rainCrossfade.setMasterGain(params.rainGain);
 		rainCrossfade.setCrossfadeValue(params.rainCrossfade);
-	}
+
 
 	windCrossfade.applyGains();
 	rainCrossfade.applyGains();
